@@ -24,6 +24,11 @@ def zip_skill(folder: Path) -> bytes:
 
 def main(api: str) -> int:
     with httpx.Client(base_url=api, timeout=30) as client:
+        # A API exige login; na POC o usuário inicial é admin/admin.
+        r = client.post("/auth/login", json={"username": "admin", "password": "admin"})
+        if r.status_code != 200:
+            print(f"[erro] login: {r.status_code} {r.text}")
+            return 1
         for folder in sorted(p for p in EXAMPLES.iterdir() if p.is_dir()):
             name = folder.name
             r = client.post(

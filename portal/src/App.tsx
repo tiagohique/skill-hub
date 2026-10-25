@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "./auth";
 import { Layout } from "./components/Layout";
 import type { Page } from "./components/Layout";
+import { LoginPage } from "./pages/LoginPage";
 import { SkillDetailPage } from "./pages/SkillDetailPage";
 import { SkillsPage } from "./pages/SkillsPage";
 import { UploadPage } from "./pages/UploadPage";
@@ -21,6 +23,10 @@ function useHashRoute(): string {
 
 export function App() {
   const route = useHashRoute();
+  const { state } = useAuth();
+  if (state === "loading") return <div className="min-h-screen" aria-busy="true" />;
+  if (state === "anonymous") return <LoginPage />;
+
   const detail = route.match(/^#\/skills\/([^/]+)$/);
 
   let active: Page | null = "list";

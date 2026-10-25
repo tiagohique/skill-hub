@@ -1,5 +1,6 @@
 import { Box, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useAuth } from "../auth";
 import { useTheme } from "../ThemeContext";
 import { ThemeToggle } from "./ThemeToggle";
 import type { ReactNode } from "react";
@@ -13,7 +14,8 @@ const LINKS: { page: Page; href: string; label: string }[] = [
 
 export function Layout({ active, children }: { active: Page | null; children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { theme, toggle } = useTheme();
+  const { theme } = useTheme();
+  const { user, signOut, toggleTheme: toggle } = useAuth();
 
   // Fecha o menu do celular ao navegar e com a tecla Esc.
   useEffect(() => {
@@ -57,6 +59,14 @@ export function Layout({ active, children }: { active: Page | null; children: Re
 
           <div className="hidden md:flex items-center gap-4 border-l border-zinc-200 dark:border-zinc-800 pl-4 ml-2">
             <ThemeToggle theme={theme} onToggle={toggle} />
+            <span className="text-sm text-zinc-500 dark:text-zinc-400">{user?.username}</span>
+            <button
+              type="button"
+              onClick={() => void signOut()}
+              className="text-sm font-medium text-zinc-500 hover:text-red-600 dark:text-zinc-400 dark:hover:text-red-400 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 rounded-md min-h-11 px-1"
+            >
+              Sair
+            </button>
           </div>
 
           <div className="md:hidden flex items-center gap-1">
@@ -93,6 +103,14 @@ export function Layout({ active, children }: { active: Page | null; children: Re
                 {l.label}
               </a>
             ))}
+            <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-2" />
+            <button
+              type="button"
+              onClick={() => void signOut()}
+              className="w-full text-left px-4 py-3 min-h-11 rounded-lg text-base font-medium text-red-600 dark:text-red-400"
+            >
+              Sair{user ? ` (${user.username})` : ""}
+            </button>
           </nav>
         </div>
       )}

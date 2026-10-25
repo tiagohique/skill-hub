@@ -1,4 +1,5 @@
-import type { Channel, SkillDetail, SkillSummary, VersionDetail } from "./types";
+import type { Theme } from "./theme";
+import type { Channel, SkillDetail, SkillSummary, User, VersionDetail } from "./types";
 
 /** Erro devolvido pela API no formato { code, message }. */
 export class ApiError extends Error {
@@ -11,6 +12,13 @@ export class ApiError extends Error {
     this.code = code;
     this.status = status;
   }
+}
+
+let onUnauthorized: (() => void) | null = null;
+
+/** Chamado quando uma rota protegida responde 401 (sessão expirada ou ausente). */
+export function setUnauthorizedHandler(handler: (() => void) | null): void {
+  onUnauthorized = handler;
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -30,8 +38,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     } catch {
       // resposta sem JSON: mantém a mensagem genérica
     }
+    if (response.status === 401 && !path.startsWith("/auth/login")) onUnauthorized?.();
     throw new ApiError(code, message, response.status);
   }
+  if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }
 
@@ -62,3 +72,18 @@ export const deprecate = (name: string, version: string) =>
   request<VersionDetail>(`/skills/${enc(name)}/versions/${enc(version)}/deprecate`, {
     method: "POST",
   });
+
+const json = (method: string, body: unknown): RequestInit => ({
+  method,
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(body),
+});
+
+export const login = (username: string, password: string) =>
+  request<User>("/auth/login", json("POST", { username, password }));
+
+export const logout = () => request<void>("/auth/logout", { method: "POST" });
+
+export const me = () => request<User>("/auth/me");
+
+export const saveTheme = (theme: Theme) => request<User>("/auth/theme", json("PUT", { theme }));

@@ -30,6 +30,9 @@ class AnyResult(BaseModel, extra="allow"):
 async def verify(url: str) -> int:
     api = url.removesuffix("/mcp") + "/api"
     failures = 0
+    # A API REST exige login (o MCP não); na POC o usuário inicial é admin/admin.
+    rest = httpx.Client(base_url=api, timeout=30)
+    rest.post("/auth/login", json={"username": "admin", "password": "admin"}).raise_for_status()
     async with Client(url, client_info=types.Implementation(name="verify-mcp", version="1.0")) as client:
         result = await client.session.send_request(
             types.Request(method="skills/list", params=types.PaginatedRequestParams()), AnyResult
@@ -60,9 +63,9 @@ async def verify(url: str) -> int:
                 entries.append(FileEntry(path, sha, len(data)))
                 print(f"[{'ok' if ok else 'falha'}] {name}/{path} {res['digest'][:19]}…")
                 failures += 0 if ok else 1
-            detail = httpx.get(f"{api}/skills/{name}").json()
+            detail = rest.get(f"/skills/{name}").json()
             version = detail["channels"]["stable"]
-            expected = httpx.get(f"{api}/skills/{name}/versions/{version}").json()["bundle_sha256"]
+            expected = rest.get(f"/skills/{name}/versions/{version}").json()["bundle_sha256"]
             bundle_ok = bundle_sha256(entries) == expected
             print(f"[{'ok' if bundle_ok else 'falha'}] {name}@{version} hash do pacote")
             failures += 0 if bundle_ok else 1

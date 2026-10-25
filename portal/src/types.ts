@@ -1,7 +1,13 @@
 // Espelha os schemas da API REST do hub (hub/src/hub/api/schemas.py).
+import type { Theme } from "./theme";
 
 export type Status = "draft" | "beta" | "stable" | "deprecated" | "retired";
 export type Channel = "beta" | "stable";
+
+export interface User {
+  username: string;
+  theme: Theme;
+}
 
 export interface SkillSummary {
   name: string;
@@ -9,6 +15,7 @@ export interface SkillSummary {
   owner: string;
   stable: string | null;
   beta: string | null;
+  status: Status;
 }
 
 export interface VersionSummary {
