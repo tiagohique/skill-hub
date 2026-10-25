@@ -6,6 +6,7 @@ import pytest_asyncio
 
 from hub.config import Settings
 from hub.main import create_app
+from tests.helpers import running
 
 SKILL = "---\nname: my-skill\ndescription: Faz algo útil\n---\n# Corpo\n"
 
@@ -25,7 +26,7 @@ async def client(clean_db: None) -> AsyncIterator[httpx.AsyncClient]:
         max_files=10,
     )
     app = create_app(settings)
-    async with app.router.lifespan_context(app):
+    async with running(app):
         transport = httpx.ASGITransport(app=app)
         async with httpx.AsyncClient(transport=transport, base_url="http://test") as c:
             yield c

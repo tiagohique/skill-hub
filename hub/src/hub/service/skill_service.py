@@ -198,6 +198,7 @@ async def _published(catalog: CatalogRepository, skill: SkillRow, version: str) 
     return PublishedSkill(
         name=skill.name,
         description=str(row.frontmatter.get("description", "")),
+        frontmatter=row.frontmatter,
         version=row.version,
         bundle_sha256=row.bundle_sha256,
         files=await catalog.list_files(row.id),

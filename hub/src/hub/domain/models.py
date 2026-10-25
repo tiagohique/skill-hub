@@ -102,6 +102,7 @@ class VersionDetail:
 class PublishedSkill:
     name: str
     description: str
+    frontmatter: dict[str, Any]
     version: str
     bundle_sha256: str
     files: list[FileEntry]

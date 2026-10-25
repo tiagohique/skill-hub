@@ -26,8 +26,15 @@ docker compose run --rm hub-test pytest tests/integration/test_mcp.py -v
 ```
 
 ## Critérios de aceite
-- [ ] `mcp/` só chama `SkillService`
-- [ ] Hash conferido ao ler; adulteração gera erro
+- [x] `mcp/` só chama `SkillService`
+- [x] Hash conferido ao ler; adulteração gera erro
 
 ## Notas de execução
-—
+Desvios em relação ao plano:
+- `build_mcp_server` recebe um `ServiceProvider` (`Callable[[], SkillService]`), não o serviço: o servidor MCP é montado em `create_app` antes do lifespan criar o `SkillService`.
+- O endpoint é uma `Route("/mcp")` com `StreamableHTTPASGIApp` anexada ao router da FastAPI (um `Mount` redirecionaria `/mcp` para `/mcp/`); o `StreamableHTTPSessionManager.run()` entra no lifespan da FastAPI.
+- `PublishedSkill` ganhou `frontmatter` (a SEP exige o frontmatter verbatim na entrada).
+- URIs de skills no canal beta carregam `?channel=beta` (entrada e arquivos), para que o `resources/read` volte ao mesmo canal.
+- Proteção contra DNS rebinding ligada, aceitando `localhost`, `127.0.0.1`, `[::1]`, `hub` e `host.docker.internal`.
+- Os testes sobem o app com uvicorn numa porta livre e usam o `mcp.Client` oficial por HTTP; `tests/helpers.py::running` roda o lifespan numa task própria (task group do anyio).
+- As tools de fallback são só `list_skills` e `get_skill` (spec); `get_skill` devolve o texto do `SKILL.md` e a lista de arquivos; outros arquivos só por `resources/read`.
