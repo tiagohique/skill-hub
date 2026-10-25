@@ -23,9 +23,9 @@ ls docs/tasks | wc -l   # 20 (README + 19 tarefas)
 ```
 
 ## Critérios de aceite
-- [ ] Repositório git inicializado
-- [ ] 19 arquivos de tarefa + README em `docs/tasks`
-- [ ] Spec consolidada e plano em `docs/superpowers`
+- [x] Repositório git inicializado
+- [x] 19 arquivos de tarefa + README em `docs/tasks`
+- [x] Spec consolidada e plano em `docs/superpowers`
 
 ## Notas de execução
 —
