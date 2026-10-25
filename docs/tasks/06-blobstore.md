@@ -23,8 +23,8 @@ docker compose run --rm hub-test pytest tests/contract tests/integration/test_bl
 ```
 
 ## Critérios de aceite
-- [ ] Contrato passa nas duas implementações
-- [ ] Adulteração gera `IntegrityError`
+- [x] Contrato passa nas duas implementações
+- [x] Adulteração gera `IntegrityError`
 
 ## Notas de execução
-—
+A fixture `migrated` roda o Alembic numa thread separada (o `env.py` usa `asyncio.run`, que falha se já houver loop). `tests/` virou pacote (`tests/__init__.py`) para importar `tests.fakes`. Extras: teste unitário da factory (backend desconhecido) e `test_postgres_put_does_not_duplicate`.

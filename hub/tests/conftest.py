@@ -1,5 +1,6 @@
 import os
 from collections.abc import AsyncIterator
+from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 import pytest_asyncio
@@ -30,11 +31,17 @@ async def app_engine() -> AsyncIterator[AsyncEngine]:
 
 @pytest.fixture(scope="session")
 def migrated() -> None:
-    """Recria o esquema do banco de teste via Alembic (fixture síncrona: env.py usa asyncio.run)."""
+    """Recria o esquema do banco de teste via Alembic (o env.py usa asyncio.run)."""
     cfg = Config("alembic.ini")
     cfg.set_main_option("sqlalchemy.url", os.environ["TEST_MIGRATION_DATABASE_URL"])
-    command.downgrade(cfg, "base")
-    command.upgrade(cfg, "head")
+
+    def run() -> None:
+        command.downgrade(cfg, "base")
+        command.upgrade(cfg, "head")
+
+    # Em outra thread, para funcionar mesmo se um loop de eventos já estiver rodando.
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        pool.submit(run).result()
 
 
 @pytest_asyncio.fixture
