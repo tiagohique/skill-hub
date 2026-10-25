@@ -29,8 +29,8 @@ docker compose run --rm hub-test sh -c "ruff check . && mypy"
 ```
 
 ## Critérios de aceite
-- [ ] `domain/` não importa nenhuma outra camada
-- [ ] Testes, ruff e mypy verdes
+- [x] `domain/` não importa nenhuma outra camada
+- [x] Testes, ruff e mypy verdes
 
 ## Notas de execução
 —
