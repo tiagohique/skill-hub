@@ -26,9 +26,9 @@ docker compose logs hub
 ```
 
 ## Critérios de aceite
-- [ ] Três serviços de pé sem intervenção
-- [ ] Log do hub mostra migração antes do uvicorn
-- [ ] Portal carrega a lista via proxy
+- [x] Três serviços de pé sem intervenção
+- [x] Log do hub mostra migração antes do uvicorn
+- [x] Portal carrega a lista via proxy
 
 ## Notas de execução
-—
+Verificado com `docker compose down -v && docker compose up --build -d`: três serviços de pé, o log do hub mostra `Running upgrade -> 0001` antes do uvicorn (o `alembic.ini` ganhou configuração de logging) e `localhost:5173/api/skills` responde `[]` pelo proxy. O dev server do Vite recusa o cabeçalho `Host: portal:5173` (proteção de host), então a checagem do portal é feita pelo navegador/`localhost`, não a partir de outro contêiner; o hub é checado de dentro do Compose por `hub:8000`.

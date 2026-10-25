@@ -20,6 +20,6 @@ Status: `pendente` · `em andamento` · `concluída`. Atualize no mesmo commit d
 | 13 | [Portal: esqueleto e tela Skills](13-portal-skills.md) | 5 | 10 | concluída |
 | 14 | [Portal: tela Detalhe](14-portal-detail.md) | 5 | 13 | concluída |
 | 15 | [Portal: tela Upload](15-portal-upload.md) | 5 | 13 | concluída |
-| 16 | [Compose final](16-compose-final.md) | 6 | 10, 13 | pendente |
+| 16 | [Compose final](16-compose-final.md) | 6 | 10, 13 | concluída |
 | 17 | [Exemplos, demo e Claude Code](17-examples-demo.md) | 6 | 12, 16 | pendente |
 | 18 | [arq.c4 e definição de pronto](18-architecture-and-dod.md) | 6 | todas | pendente |

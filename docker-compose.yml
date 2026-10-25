@@ -24,6 +24,16 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
 
   portal:
     build: ./portal
@@ -35,7 +45,8 @@ services:
       - ./portal:/app
       - /app/node_modules # fica no contêiner, nunca no host
     depends_on:
-      - hub
+      hub:
+        condition: service_healthy
 
   # Testes, lint, tipos e scripts. Uso: docker compose run --rm hub-test pytest -v
   hub-test:

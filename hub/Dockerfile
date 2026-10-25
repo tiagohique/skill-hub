@@ -15,7 +15,8 @@ FROM base AS runtime
 COPY pyproject.toml alembic.ini ./
 COPY src ./src
 COPY alembic ./alembic
+COPY entrypoint.sh ./
 RUN pip install . && useradd --create-home --uid 10001 hub
 USER hub
 EXPOSE 8000
-CMD ["uvicorn", "hub.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["./entrypoint.sh"]

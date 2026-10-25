@@ -1,5 +1,6 @@
 import asyncio
 import os
+from logging.config import fileConfig
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -9,6 +10,8 @@ from alembic import context
 from hub.repositories.tables import metadata
 
 config = context.config
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 url = config.get_main_option("sqlalchemy.url") or os.environ["MIGRATION_DATABASE_URL"]
 config.set_main_option("sqlalchemy.url", url)
 
