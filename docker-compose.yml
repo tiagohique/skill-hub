@@ -25,6 +25,18 @@ services:
       postgres:
         condition: service_healthy
 
+  portal:
+    build: ./portal
+    ports:
+      - "5173:5173"
+    environment:
+      API_TARGET: http://hub:8000
+    volumes:
+      - ./portal:/app
+      - /app/node_modules # fica no contêiner, nunca no host
+    depends_on:
+      - hub
+
   # Testes, lint, tipos e scripts. Uso: docker compose run --rm hub-test pytest -v
   hub-test:
     profiles: ["test"]

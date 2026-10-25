@@ -25,8 +25,8 @@ docker compose up --build -d
 ```
 
 ## Critérios de aceite
-- [ ] Build sem erros de tipo
-- [ ] `http://localhost:5173` mostra estado vazio e depois a lista
+- [x] Build sem erros de tipo
+- [x] `http://localhost:5173` mostra estado vazio e depois a lista
 
 ## Notas de execução
-—
+Versões resolvidas pelo `npm` no contêiner (React 19, Vite 8, TypeScript 7); o `package-lock.json` foi gerado com `docker run -v $PWD/portal:/app -v /app/node_modules node:22-alpine npm install` (o `node_modules` fica em volume do contêiner). `vite.config.ts` usa `loadEnv` para ler `API_TARGET` (evita `@types/node`) e `src/vite-env.d.ts` declara os tipos de CSS. As rotas de detalhe e upload são placeholders até as Tarefas 14 e 15. Verificado no navegador: lista mostra a skill enviada pelo proxy `/api`.
