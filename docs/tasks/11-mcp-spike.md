@@ -24,8 +24,8 @@ docker compose run --rm hub-test sh -c 'grep -rniE "skills/(list|get)|SEP-2640|s
 ```
 
 ## Critérios de aceite
-- [ ] Documento com versão, achados e caminho escolhido
-- [ ] Se não houver forma suportada de registrar os métodos sem alterar o SDK: **parar e perguntar ao usuário** antes da Tarefa 12
+- [x] Documento com versão, achados e caminho escolhido
+- [x] Se não houver forma suportada de registrar os métodos sem alterar o SDK: **parar e perguntar ao usuário** antes da Tarefa 12
 
 ## Notas de execução
-—
+Resultado completo em `docs/decisions/mcp-skills-extension.md`. A extensão não existe no `mcp` 2.3.0, mas o registro manual funciona via `Server.add_request_handler`, então não houve parada. `pyproject.toml` agora fixa `mcp>=2.3,<3`.

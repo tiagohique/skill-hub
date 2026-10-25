@@ -15,7 +15,7 @@ Status: `pendente` · `em andamento` · `concluída`. Atualize no mesmo commit d
 | 08 | [SkillService: upload e consultas](08-service-upload.md) | 3 | 04, 06, 07 | concluída |
 | 09 | [SkillService: governança e entrega](09-service-lifecycle.md) | 3 | 08 | concluída |
 | 10 | [API REST](10-rest-api.md) | 4 | 09 | concluída |
-| 11 | [Spike: extensão de Skills no MCP](11-mcp-spike.md) | 4 | 01 | pendente |
+| 11 | [Spike: extensão de Skills no MCP](11-mcp-spike.md) | 4 | 01 | concluída |
 | 12 | [Servidor MCP](12-mcp-server.md) | 4 | 09, 11 | pendente |
 | 13 | [Portal: esqueleto e tela Skills](13-portal-skills.md) | 5 | 10 | pendente |
 | 14 | [Portal: tela Detalhe](14-portal-detail.md) | 5 | 13 | pendente |
