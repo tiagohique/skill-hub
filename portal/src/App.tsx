@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { SkillDetailPage } from "./pages/SkillDetailPage";
 import { SkillsPage } from "./pages/SkillsPage";
+import { UploadPage } from "./pages/UploadPage";
 
 /** Rota por hash, sem biblioteca: "#/", "#/skills/<nome>" e "#/upload". */
 function useHashRoute(): string {
@@ -22,7 +23,7 @@ export function App() {
     const name = decodeURIComponent(detail[1]!);
     page = <SkillDetailPage key={name} name={name} />;
   } else if (route === "#/upload") {
-    page = <p className="muted">Envio de skill em construção.</p>;
+    page = <UploadPage />;
   } else {
     page = <SkillsPage />;
   }

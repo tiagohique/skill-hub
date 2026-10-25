@@ -205,3 +205,49 @@ button.link {
   color: var(--danger);
   border-color: var(--danger);
 }
+
+.dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 9rem;
+  padding: 1rem;
+  text-align: center;
+  color: var(--muted);
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.dropzone.dragging,
+.dropzone:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.field {
+  display: block;
+  margin: 1.25rem 0 0.5rem;
+  font-weight: 600;
+}
+
+.field input {
+  display: block;
+  width: 16rem;
+  margin-top: 0.35rem;
+  padding: 0.45rem 0.6rem;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.field input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+form button[type="submit"] {
+  margin-top: 1rem;
+}

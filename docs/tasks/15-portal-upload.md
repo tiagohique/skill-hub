@@ -23,8 +23,8 @@ docker compose run --rm portal npm run build
 ```
 
 ## Critérios de aceite
-- [ ] Mensagens claras em pt-BR para cada erro
-- [ ] Nada enviado com versão inválida
+- [x] Mensagens claras em pt-BR para cada erro
+- [x] Nada enviado com versão inválida
 
 ## Notas de execução
-—
+Verificado no navegador (envio simulado por `DataTransfer` no console): versão `1.0` mantém "Enviar" desabilitado; `1.0.0` envia e navega ao detalhe; reenvio mostra "A versão 1.0.0 desta skill já existe e não pode ser sobrescrita." Extensão diferente de `.md`/`.zip` é recusada no cliente antes de enviar.
