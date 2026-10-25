@@ -29,3 +29,9 @@ Status: `pendente` · `em andamento` · `concluída`. Atualize no mesmo commit d
 | 22 | [Portal: upload redesenhado](22-portal-upload.md) | facelift | 20, 19 | concluída |
 | 23 | [Portal: detalhe e verificação no celular](23-portal-detail-mobile.md) | facelift | 20, 21 | concluída |
 | 24 | [CLAUDE.md e arq.c4](24-docs-claude-md-arq-c4.md) | facelift | 20 a 23 | concluída |
+| 25 | [Banco e AuthService](25-auth-database.md) | login | 24 | pendente |
+| 26 | [API de autenticação e status](26-auth-api.md) | login | 25 | pendente |
+| 27 | [Tema claro e escuro](27-theme.md) | login | 26 | pendente |
+| 28 | [Tela de login](28-login-screen.md) | login | 27 | pendente |
+| 29 | [Filtro de status](29-status-filter.md) | login | 26 | pendente |
+| 30 | [CLAUDE.md e arq.c4](30-docs-login-theme.md) | login | 25 a 29 | pendente |
