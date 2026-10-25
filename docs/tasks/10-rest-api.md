@@ -23,8 +23,8 @@ docker compose run --rm hub-test pytest tests/integration/test_api.py -v
 ```
 
 ## Critérios de aceite
-- [ ] `api/` não importa `repositories/` nem `store/`
-- [ ] Testes verdes; ruff e mypy limpos
+- [x] `api/` não importa `repositories/` nem `store/`
+- [x] Testes verdes; ruff e mypy limpos
 
 ## Notas de execução
-—
+O `httpx.ASGITransport` não executa o lifespan; os testes entram em `app.router.lifespan_context(app)` na fixture `client`. `create_app` é a raiz de composição (engine, sessionmaker, BlobStore, SkillService no lifespan); `api/` não importa `repositories/` nem `store/`. Handler extra para erros HTTP do Starlette (rota inexistente → 404 `not_found`), mantendo o formato `{code, message}`.
