@@ -24,9 +24,9 @@ docker compose run --rm hub-test pytest tests/integration/test_db_roles.py -v
 ```
 
 ## Critérios de aceite
-- [ ] Postgres sobe `healthy` sozinho
-- [ ] App não cria tabelas
-- [ ] `.env` fora do git
+- [x] Postgres sobe `healthy` sozinho
+- [x] App não cria tabelas
+- [x] `.env` fora do git
 
 ## Notas de execução
-—
+Fixtures `owner_engine`/`app_engine` ficaram com escopo de função (engines asyncpg presos ao loop de cada teste). O script `db/init/01-app-role.sh` precisa de `chmod +x` (sem isso a imagem falha com `bad interpreter`).
