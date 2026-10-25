@@ -24,7 +24,7 @@ docker compose run --rm --no-deps portal npm test
 ```
 
 ## Critérios de aceite
-- [ ] Testes e verificação da tarefa passam
+- [x] Testes e verificação da tarefa passam
 
 ## Notas de execução
-(a preencher)
+`CLAUDE.md`: modelo de dados (`users`, `auth_sessions`), grants, API de autenticação, aviso do usuário `admin`/`admin` (só local), MCP sem login, portal com tema e login, estrutura, fora do escopo e checklist. `arq.c4`: `AuthService`, tabela `Usuários e sessões`, componente `Login e tema`, view `login`; `likec4 validate` válido.

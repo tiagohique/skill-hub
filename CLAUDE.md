@@ -81,7 +81,7 @@ api/ e mcp/  -->  service/  -->  store/ (BlobStore) e repositories/
 ```
 
 - `api/` (REST) e `mcp/` (MCP) são só adaptadores finos. Nunca acessam banco nem BlobStore direto.
-- Toda regra de negócio fica em `service/SkillService`.
+- Toda regra de negócio fica em `service/`: `SkillService` (skills) e `AuthService` (login, sessões e tema). `security.py` guarda o hash de senha (scrypt) e o token de sessão.
 - Só `repositories/` fala SQL. Só implementações de `BlobStore` gravam e leem conteúdo.
 - O portal fala apenas com a API REST. Nunca com o MCP nem com o banco.
 - Camadas inferiores nunca importam as superiores.
@@ -117,11 +117,14 @@ Regras:
 | `channels` | `skill_id`, `channel` (`beta` ou `stable`), `version_id` |
 | `blobs` | `sha256` (PK), `content` (bytea), `size`, `created_at` |
 | `audit_events` | `id`, `actor`, `action`, `skill`, `version`, `at` |
+| `users` | `id`, `username` (único), `password_hash` (scrypt), `theme` (`light` ou `dark`), `created_at` |
+| `auth_sessions` | `token_sha256` (PK), `user_id`, `created_at`, `expires_at`, `revoked_at` |
 
 Restrições:
 
 - `UNIQUE (skill_id, version)`.
 - `bundle_sha256` = SHA-256 do texto formado pelas linhas `path\0sha256`, ordenadas por `path`.
+- `audit_events.actor` e `skill_versions.created_by` guardam o username de quem agiu (texto, sem FK).
 - Promoção atualiza `skill_versions.status`, `channels` e `audit_events` **na mesma transação**.
 
 ## Imutabilidade (imposta pelo banco)
@@ -131,6 +134,7 @@ O usuário do banco usado pelo hub tem permissões mínimas:
 - `blobs`, `skill_version_files`, `audit_events`: apenas `INSERT` e `SELECT`.
 - `skill_versions`: `INSERT`, `SELECT` e `UPDATE (status)` apenas na coluna `status`.
 - `channels`: `INSERT`, `SELECT` e `UPDATE (version_id)` (promoção e depreciação).
+- `users`: `INSERT`, `SELECT` e `UPDATE (theme)`. `auth_sessions`: `INSERT`, `SELECT` e `UPDATE (revoked_at)` (logout não apaga a sessão).
 - Nenhum `DELETE` em lugar nenhum.
 - Migrações rodam com outro usuário (dono do esquema).
 
@@ -160,7 +164,7 @@ draft --> beta --> stable --> deprecated --> retired
 
 ## Servidor MCP
 
-- Transporte: Streamable HTTP em `/mcp`.
+- Transporte: Streamable HTTP em `/mcp`. Sem login (só a API REST do portal exige sessão).
 - Padrão: extensão de Skills (SEP-2640). Métodos `skills/list`, `skills/get` e `resources/read`, URIs `skill://<name>/SKILL.md` e `skill://<name>/<path>`.
 - Cada skill é listada com a lista de arquivos, o digest SHA-256 e o tamanho de cada um. **Nunca servir como `"dynamic"`.**
 - **Resultado da verificação (Tarefa 11):** o `mcp` 2.3.0 (o mais novo no PyPI, fixado em `mcp>=2.3,<3`) ainda não traz a extensão; o PR `python-sdk#3485` foi mesclado na `main` em 2026-10-11, mas não saiu em release. Por isso `skills/list` e `skills/get` são registrados à mão com o `Server` de baixo nível (`add_request_handler`), com a capability `io.modelcontextprotocol/skills`. Detalhes em `docs/decisions/mcp-skills-extension.md`. Quando o SDK publicar a extensão, troca só o adaptador `mcp/`.
@@ -174,27 +178,37 @@ draft --> beta --> stable --> deprecated --> retired
 |---|---|---|
 | GET | `/api/health` | Saúde do hub (healthcheck do Compose) |
 | POST | `/api/skills/upload` | Upload (`multipart`) de `.md` ou `.zip` com a versão |
-| GET | `/api/skills` | Lista skills e canais |
+| POST | `/api/auth/login` | Corpo `{ username, password }`; devolve o usuário e grava o cookie de sessão |
+| POST | `/api/auth/logout` | Revoga a sessão |
+| GET | `/api/auth/me` | Usuário logado (401 sem sessão) |
+| PUT | `/api/auth/theme` | Corpo `{ "theme": "light" ou "dark" }`; guarda a preferência no banco |
+| GET | `/api/skills` | Lista skills, canais e `status` geral |
 | GET | `/api/skills/{name}` | Detalhe e versões |
 | GET | `/api/skills/{name}/versions/{version}` | Arquivos e hashes da versão |
 | POST | `/api/skills/{name}/versions/{version}/promote` | Corpo `{ "to": "beta" ou "stable" }` |
 | POST | `/api/skills/{name}/versions/{version}/deprecate` | Depreciar |
 
+**Login:** todas as rotas de `/api/skills` exigem sessão (cookie `hub_session`, `HttpOnly`, `SameSite=Lax`, 7 dias; no banco fica só o SHA-256 do token). Sem sessão: 401 `unauthorized`. `/api/health` e `/api/auth/login` são abertas. **O MCP (`/mcp`) continua sem login.** Usuário inicial da POC criado pela migração: `admin` / `admin` (senha com `hashlib.scrypt`). **É só para ambiente local; troque antes de qualquer uso fora dele.** Não há cadastro nem troca de senha.
+
+`status` geral da skill na lista: `stable` se há canal stable; senão `beta` se há canal beta; senão o status da versão mais recente (`draft`, `deprecated` ou `retired`).
+
 Erros em JSON com `code` e `message`. Upload que repete versão: 409. A transição `deprecated→retired` existe só no `SkillService` (sem rota REST).
 
 ## Portal (React)
 
-Visual dark nativo (zinc + indigo), com Tailwind CSS e ícones lucide-react, fiel ao protótipo aprovado em 2026-10-25. Rotas por hash (`#/`, `#/skills/<nome>`, `#/upload`). Três telas:
+Visual zinc + indigo com **tema claro e escuro** (Tailwind CSS, classe `dark` no `<html>`, ícones lucide-react), fiel ao protótipo aprovado em 2026-10-25. O botão Sol/Lua fica na navbar e no canto da tela de login. O tema vale no navegador (`localStorage`, sem flash ao abrir) e, logado, é guardado no banco por usuário (`PUT /api/auth/theme`) e aplicado ao entrar. Rotas por hash (`#/`, `#/skills/<nome>`, `#/upload`). Sem sessão, qualquer rota mostra a tela de login. Quatro telas:
 
-1. **Skills:** cabeçalho com botão "Enviar Skill", busca por nome e filtro por domínio (no cliente), tabela no desktop e cards no celular, com badges de versão `stable` e `beta`. Clicar leva ao detalhe.
+0. **Login:** card centralizado com ícone, campos Usuário e Senha (ícones à esquerda), botão de largura total e o aviso "Acesso restrito a desenvolvedores autorizados.". Erro de credencial aparece no topo do card. A navbar tem o nome do usuário e "Sair" (hover vermelho).
+
+1. **Skills:** cabeçalho com botão "Enviar Skill", busca por nome, filtro por domínio e filtro por status (Todos, Stable, Beta, Deprecated; tudo no cliente, empilhados no celular), tabela no desktop e cards no celular, com coluna Status e badges de versão `stable` e `beta`. Clicar leva ao detalhe.
 2. **Detalhe:** versões (tabela ou cards), status em badges, arquivos com hash (copiar ao clicar), botões Promover e Depreciar.
 3. **Upload:** card centralizado com área de arrastar e soltar (`.md` ou `.zip`) e campo de versão semver. Versão inválida mostra o que corrigir e oferece a correção (`explainVersion`, ex.: "Usar 1.0.0"); erros reais da API (409, 413, 422) aparecem no topo do card; spinner durante o envio.
 
 Responsivo: menu hambúrguer e cards abaixo de `md`; sem rolagem horizontal em 375 px.
 
-Acesso pelo celular: `http://<IP do Mac>:5173`, na mesma rede (o Vite escuta em `0.0.0.0` e o portal faz proxy de `/api`, então o aparelho só precisa da porta 5173). **A POC não tem login: quem estiver na mesma rede pode ver e enviar skills.**
+Acesso pelo celular: `http://<IP do Mac>:5173`, na mesma rede (o Vite escuta em `0.0.0.0` e o portal faz proxy de `/api`, então o aparelho só precisa da porta 5173). **Com o login `admin`/`admin` (POC), quem estiver na mesma rede e souber a senha pode ver e enviar skills; troque a senha antes de expor o portal.**
 
-Sem login na POC. Interface em português.
+Interface em português.
 
 ## Estrutura de pastas
 
@@ -224,10 +238,10 @@ skills-hub/
   portal/
     Dockerfile
     src/
-      components/   # Layout (navbar) e Badge
-      pages/        # SkillsPage, SkillDetailPage, UploadPage
-      api.ts types.ts skills.ts version.ts
-    tests/          # node:test (skills e version)
+      components/   # Layout (navbar), Badge e ThemeToggle
+      pages/        # LoginPage, SkillsPage, SkillDetailPage, UploadPage
+      api.ts auth.tsx theme.ts ThemeContext.tsx types.ts skills.ts version.ts
+    tests/          # node:test (skills, version e theme)
   examples/skills/  # 2 skills de exemplo para a demonstração
   scripts/          # demo.py e verify_mcp.py (rodam no contêiner hub-test)
 ```
@@ -245,7 +259,7 @@ skills-hub/
 
 ## Fora do escopo da POC
 
-Login e SSO, adaptadores S3 e Azure, pipeline de CI com scan, evals e assinatura, Terraform, busca de texto no conteúdo das skills (a lista do portal só filtra por nome e domínio), diff entre versões e multi-tenant.
+SSO, cadastro e troca de senha, login no MCP, adaptadores S3 e Azure, pipeline de CI com scan, evals e assinatura, Terraform, busca de texto no conteúdo das skills (a lista do portal só filtra por nome e domínio), diff entre versões e multi-tenant.
 
 ## Evolução prevista (não implementar)
 
@@ -256,7 +270,7 @@ Login e SSO, adaptadores S3 e Azure, pipeline de CI com scan, evals e assinatura
 | `PostgresBlobStore` | `S3BlobStore` ou `AzureBlobStore` imutável |
 | PostgreSQL no Docker | PostgreSQL gerenciado (RDS ou Azure) |
 | Upload direto | Pipeline com scan, evals e assinatura |
-| Sem login | SSO corporativo (OAuth) |
+| Login local `admin`/`admin` | SSO corporativo (OAuth) |
 | Docker Compose | ECS ou Container Apps, via Terraform |
 
 Só a troca do adaptador do `BlobStore` deve exigir mudança de código no hub.
@@ -274,4 +288,5 @@ Só a troca do adaptador do `BlobStore` deve exigir mudança de código no hub.
 - [x] Duas skills de exemplo (HTML e back-end) publicadas e consumidas.
 - [x] `docs/arq.c4` atualizado e válido (`npx likec4 validate docs`).
 - [x] Portal no novo visual, responsivo em 375 px (sem rolagem horizontal) e acessível pelo celular na rede local.
-- [x] Lista com busca e filtro por domínio; testes do portal (`npm test`) passam.
+- [x] Lista com busca e filtros de domínio e status; testes do portal (`npm test`) passam.
+- [x] Login (`admin`/`admin` no banco) protege a API; MCP segue aberto; tema claro/escuro alternável e guardado por usuário.

@@ -52,7 +52,7 @@ specification {
 
 model {
   dev = actor 'Desenvolvedor' {
-    description 'Edita o SKILL.md na própria máquina e envia pelo portal, no computador ou no celular (mesma rede local).'
+    description 'Entra no portal com usuário e senha, edita o SKILL.md na própria máquina e envia pelo portal, no computador ou no celular (mesma rede local).'
   }
 
   claude = actor 'Claude Code' {
@@ -67,7 +67,7 @@ model {
 
     portal = container 'Portal' {
       technology 'React + Vite + Tailwind CSS (porta 5173)'
-      description 'Tema dark e responsivo. Upload do SKILL.md ou .zip, lista com busca e filtro, detalhe e promoção de versões. Fala só com a API REST. Aberto na rede local, sem login (POC).'
+      description 'Tema claro e escuro, responsivo. Login, upload do SKILL.md ou .zip, lista com busca e filtros de domínio e status, detalhe e promoção de versões. Fala só com a API REST. Aberto na rede local, protegido por login (POC: admin/admin).'
       style {
         color sky
         shape browser
@@ -75,7 +75,15 @@ model {
 
       shell = component 'Layout e navegação' {
         technology 'React'
-        description 'Navbar global, menu hambúrguer no celular e rotas por hash.'
+        description 'Navbar global com botão de tema e Sair, menu hambúrguer no celular e rotas por hash.'
+        style {
+          color sky
+        }
+      }
+
+      loginPage = component 'Login e tema' {
+        technology 'React'
+        description 'Tela de login (usuário e senha), sessão por cookie e alternância de tema claro/escuro, guardada no navegador e no banco.'
         style {
           color sky
         }
@@ -83,7 +91,7 @@ model {
 
       skillsList = component 'Lista de skills' {
         technology 'React'
-        description 'Tabela no desktop e cards no celular, com busca por nome e filtro por domínio (no cliente).'
+        description 'Tabela no desktop e cards no celular, com busca por nome e filtros de domínio e status (no cliente).'
         style {
           color sky
         }
@@ -134,6 +142,15 @@ model {
         description 'skills/list e skills/get (SEP-2640, registrados à mão no mcp 2.3), resources/read e tools de fallback list_skills e get_skill. Adaptador fino, sem regra de negócio.'
         style {
           color indigo
+        }
+      }
+
+      auth = component 'AuthService' {
+        #governance
+        technology 'hashlib.scrypt'
+        description 'Login, sessões por cookie (só o SHA-256 do token no banco, logout por revoked_at) e tema por usuário. O MCP não passa por aqui.'
+        style {
+          color amber
         }
       }
 
@@ -193,6 +210,10 @@ model {
         description 'sha256 (chave) e conteúdo em bytea. Só inserção.'
       }
 
+      accounts = table 'Usuários e sessões' {
+        description 'users (admin inicial, senha em scrypt, tema) e auth_sessions. Sem DELETE.'
+      }
+
       catalog = table 'Catálogo' {
         description 'skills, versões, arquivos, canais e auditoria.'
       }
@@ -203,6 +224,7 @@ model {
   dev -> hub_system.portal 'edita e envia SKILL.md ou .zip'
   hub_system.portal.shell -> hub_system.portal.skillsList 'abre'
   hub_system.portal.shell -> hub_system.portal.uploadForm 'abre'
+  hub_system.portal.loginPage -> hub_system.portal.apiClient 'login, logout, sessão e tema'
   hub_system.portal.skillsList -> hub_system.portal.skillDetail 'leva ao detalhe'
   hub_system.portal.skillsList -> hub_system.portal.apiClient 'lista skills'
   hub_system.portal.uploadForm -> hub_system.portal.apiClient 'envia o arquivo e a versão'
@@ -212,6 +234,8 @@ model {
 
   hub_system.hub.api -> hub_system.hub.service 'chama'
   hub_system.hub.mcp -> hub_system.hub.service 'chama'
+  hub_system.hub.api -> hub_system.hub.auth 'exige sessão nas rotas de skills'
+  hub_system.hub.auth -> hub_system.hub.repositories 'usuários e sessões'
   hub_system.hub.service -> hub_system.hub.blobStore 'put e get de conteúdo'
   hub_system.hub.blobStore -> hub_system.hub.pgStore 'implementada por (POC)'
   hub_system.hub.blobStore -> hub_system.hub.s3Store 'implementada por (futuro)' {
@@ -222,6 +246,7 @@ model {
   hub_system.hub.pgStore -> hub_system.db.blobs 'SQL'
   hub_system.hub.service -> hub_system.hub.repositories 'consulta e grava o catálogo'
   hub_system.hub.repositories -> hub_system.db.catalog 'SQL'
+  hub_system.hub.repositories -> hub_system.db.accounts 'SQL'
 }
 
 deployment {
@@ -254,7 +279,7 @@ views {
   view layers of hub_system.hub {
     title 'Camadas do hub e ponto de troca do BlobStore'
     include *
-    include hub_system.db.blobs, hub_system.db.catalog
+    include hub_system.db.blobs, hub_system.db.catalog, hub_system.db.accounts
     exclude hub_system.db
   }
 
@@ -269,6 +294,16 @@ views {
     hub_system.hub.pgStore -> hub_system.db.blobs 'INSERT por sha256'
     hub_system.hub.service -> hub_system.hub.repositories 'grava versão, arquivos e auditoria'
     hub_system.hub.repositories -> hub_system.db.catalog 'INSERT'
+  }
+
+  dynamic view login {
+    title 'Fluxo: login no portal'
+    dev -> hub_system.portal.loginPage 'informa usuário e senha'
+    hub_system.portal.loginPage -> hub_system.portal.apiClient 'POST /api/auth/login'
+    hub_system.portal.apiClient -> hub_system.hub.api 'envia as credenciais'
+    hub_system.hub.api -> hub_system.hub.auth 'confere a senha (scrypt)'
+    hub_system.hub.auth -> hub_system.hub.repositories 'grava a sessão'
+    hub_system.hub.repositories -> hub_system.db.accounts 'INSERT em auth_sessions'
   }
 
   dynamic view consume {
