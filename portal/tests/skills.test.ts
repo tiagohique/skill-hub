@@ -3,10 +3,10 @@ import { test } from "node:test";
 import { domainsOf, filterSkills } from "../src/skills.ts";
 
 const SKILLS = [
-  { name: "fastapi-endpoint", domain: "backend", owner: "a", stable: "1.0.0", beta: null, status: "stable" as const },
-  { name: "html-landing-page", domain: "frontend", owner: "b", stable: "1.0.0", beta: "1.1.0", status: "stable" as const },
-  { name: "Small-Team-Delegation", domain: "geral", owner: "c", stable: null, beta: null, status: "deprecated" as const },
-  { name: "api-gateway", domain: "backend", owner: "d", stable: null, beta: "0.1.0", status: "beta" as const },
+  { name: "fastapi-endpoint", domain: "backend", owner: "a", description: "Descrição de teste.", stable: "1.0.0", beta: null, status: "stable" as const },
+  { name: "html-landing-page", domain: "frontend", owner: "b", description: "Descrição de teste.", stable: "1.0.0", beta: "1.1.0", status: "stable" as const },
+  { name: "Small-Team-Delegation", domain: "geral", owner: "c", description: "Descrição de teste.", stable: null, beta: null, status: "deprecated" as const },
+  { name: "api-gateway", domain: "backend", owner: "d", description: "Descrição de teste.", stable: null, beta: "0.1.0", status: "beta" as const },
 ];
 
 test("domainsOf: únicos e ordenados", () => {

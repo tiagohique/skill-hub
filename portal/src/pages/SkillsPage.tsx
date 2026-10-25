@@ -110,11 +110,12 @@ export function SkillsPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/80">
-                  <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider w-1/2">Nome</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider w-1/3">Nome</th>
                   <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Domínio</th>
                   <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Stable</th>
                   <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Beta</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Descrição</th>
                   <th className="px-6 py-4"></th>
                 </tr>
               </thead>
@@ -149,6 +150,11 @@ export function SkillsPage() {
                     <td className="px-6 py-4">
                       <Badge type="beta">{skill.beta}</Badge>
                     </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-zinc-500 dark:text-zinc-400 truncate max-w-[200px] block" title={skill.description}>
+                        {skill.description}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 text-right">
                       <ChevronRight
                         size={18}
@@ -159,7 +165,7 @@ export function SkillsPage() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-zinc-500">
+                    <td colSpan={7} className="px-6 py-12 text-center text-zinc-500">
                       {emptyText}
                     </td>
                   </tr>
@@ -176,14 +182,15 @@ export function SkillsPage() {
                 href={detailHref(skill.name)}
                 className="block bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 active:bg-zinc-100 dark:active:bg-zinc-800/50 transition-colors"
               >
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <Terminal size={18} className="text-zinc-500 shrink-0" />
                     <span className="font-medium text-zinc-800 dark:text-zinc-200 break-all">{skill.name}</span>
                   </div>
                   <Badge type={skill.status}>{skill.status}</Badge>
                 </div>
-                <div className="flex flex-wrap gap-x-6 gap-y-3 mt-4 text-sm">
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4 line-clamp-2">{skill.description}</p>
+                <div className="flex flex-wrap gap-x-6 gap-y-3 border-t border-zinc-100 dark:border-zinc-800/50 pt-3 text-sm">
                   <div>
                     <span className="block text-xs text-zinc-500 mb-1 uppercase tracking-wider">Domínio</span>
                     <Badge type="domain">{skill.domain}</Badge>

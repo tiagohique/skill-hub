@@ -182,7 +182,7 @@ draft --> beta --> stable --> deprecated --> retired
 | POST | `/api/auth/logout` | Revoga a sessão |
 | GET | `/api/auth/me` | Usuário logado (401 sem sessão) |
 | PUT | `/api/auth/theme` | Corpo `{ "theme": "light" ou "dark" }`; guarda a preferência no banco |
-| GET | `/api/skills` | Lista skills, canais e `status` geral |
+| GET | `/api/skills` | Lista skills, `description` (do frontmatter da versão mais recente), canais e `status` geral |
 | GET | `/api/skills/{name}` | Detalhe e versões |
 | GET | `/api/skills/{name}/versions/{version}` | Arquivos e hashes da versão |
 | POST | `/api/skills/{name}/versions/{version}/promote` | Corpo `{ "to": "beta" ou "stable" }` |
@@ -192,7 +192,7 @@ draft --> beta --> stable --> deprecated --> retired
 
 `status` geral da skill na lista: `stable` se há canal stable; senão `beta` se há canal beta; senão o status da versão mais recente (`draft`, `deprecated` ou `retired`).
 
-**Documentação:** `/docs` (Swagger UI), `/openapi.json` e `/mcp-docs` (referência do MCP: métodos, tools, URIs e canais; o MCP não tem Swagger padrão) ficam fora do `/api`, com HTTP Basic e a senha `DOCS_PASSWORD` (padrão `B3123`, só para ambiente local; o usuário é ignorado). O portal tem os links "API (Swagger)" e "MCP" na navbar e faz proxy desses caminhos. A senha da documentação não abre a API.
+**Documentação:** `/docs` (Swagger UI), `/openapi.json` e `/mcp-docs` (referência do MCP: métodos, tools, URIs e canais; o MCP não tem Swagger padrão) ficam fora do `/api`, com HTTP Basic e a senha `DOCS_PASSWORD` (padrão `B3123`, só para ambiente local; o usuário é ignorado). O portal tem os links "API (Swagger)" e "MCP" no rodapé e faz proxy desses caminhos. A senha da documentação não abre a API.
 
 Erros em JSON com `code` e `message`. Upload que repete versão: 409. A transição `deprecated→retired` existe só no `SkillService` (sem rota REST).
 
@@ -200,13 +200,13 @@ Erros em JSON com `code` e `message`. Upload que repete versão: 409. A transiç
 
 Visual zinc + indigo com **tema claro e escuro** (Tailwind CSS, classe `dark` no `<html>`, ícones lucide-react), fiel ao protótipo aprovado em 2026-10-25. O botão Sol/Lua fica na navbar e no canto da tela de login. O tema vale no navegador (`localStorage`, sem flash ao abrir) e, logado, é guardado no banco por usuário (`PUT /api/auth/theme`) e aplicado ao entrar. Rotas por hash (`#/`, `#/skills/<nome>`, `#/upload`). Sem sessão, qualquer rota mostra a tela de login. Quatro telas:
 
-0. **Login:** card centralizado com ícone, campos Usuário e Senha (ícones à esquerda), botão de largura total e o aviso "Acesso restrito a desenvolvedores autorizados.". Erro de credencial aparece no topo do card. A navbar tem o nome do usuário e "Sair" (hover vermelho).
+0. **Login:** card centralizado com ícone, campos Usuário e Senha (ícones à esquerda), botão de largura total e o aviso "Acesso restrito a desenvolvedores autorizados.". Erro de credencial aparece no topo do card. A navbar tem o ícone de usuário com o nome embaixo; o "Sair" (vermelho) só aparece ao passar o mouse, focar ou clicar no ícone.
 
-1. **Skills:** cabeçalho com botão "Enviar Skill", busca por nome, filtro por domínio e filtro por status (Todos, Stable, Beta, Deprecated; tudo no cliente, empilhados no celular), tabela no desktop e cards no celular, com coluna Status e badges de versão `stable` e `beta`. Clicar leva ao detalhe.
+1. **Skills:** cabeçalho com botão "Enviar Skill", busca por nome, filtro por domínio e filtro por status (Todos, Stable, Beta, Deprecated; tudo no cliente, empilhados no celular), tabela no desktop e cards no celular, com colunas Status, Domínio, Stable, Beta e Descrição (truncada, texto completo no `title`; 2 linhas nos cards) e badges de versão `stable` e `beta`. Clicar leva ao detalhe.
 2. **Detalhe:** versões (tabela ou cards), status em badges, arquivos com hash (copiar ao clicar), botões Promover e Depreciar.
 3. **Upload:** card centralizado com área de arrastar e soltar (`.md` ou `.zip`) e campo de versão semver. Versão inválida mostra o que corrigir e oferece a correção (`explainVersion`, ex.: "Usar 1.0.0"); erros reais da API (409, 413, 422) aparecem no topo do card; spinner durante o envio.
 
-Responsivo: menu hambúrguer e cards abaixo de `md`; sem rolagem horizontal em 375 px.
+Rodapé global com os links "API (Swagger)" e "MCP" (nova aba). Responsivo: menu hambúrguer e cards abaixo de `md`; sem rolagem horizontal em 375 px.
 
 Acesso pelo celular: `http://<IP do Mac>:5173`, na mesma rede (o Vite escuta em `0.0.0.0` e o portal faz proxy de `/api`, então o aparelho só precisa da porta 5173). **Com o login `admin`/`admin` (POC), quem estiver na mesma rede e souber a senha pode ver e enviar skills; troque a senha antes de expor o portal.**
 

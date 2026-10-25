@@ -18,6 +18,7 @@ class SkillSummaryOut(_Out):
     name: str
     domain: str
     owner: str
+    description: str
     stable: str | None
     beta: str | None
     status: str

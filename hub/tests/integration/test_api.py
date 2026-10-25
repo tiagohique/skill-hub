@@ -117,6 +117,7 @@ async def test_list_skills_shows_channels(client: httpx.AsyncClient) -> None:
         "name": "my-skill",
         "domain": "geral",
         "owner": "admin",
+        "description": "Faz algo útil",
         "stable": None,
         "beta": None,
         "status": "draft",

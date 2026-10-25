@@ -13,6 +13,7 @@ export interface SkillSummary {
   name: string;
   domain: string;
   owner: string;
+  description: string;
   stable: string | null;
   beta: string | null;
   status: Status;

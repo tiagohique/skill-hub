@@ -180,6 +180,18 @@ class CatalogRepository:
         )
         return {r.skill_id: Status(r.status) for r in (await self._session.execute(stmt)).all()}
 
+    async def latest_descriptions(self) -> dict[uuid.UUID, str]:
+        """Descrição (frontmatter) da versão mais recente de cada skill."""
+        stmt = (
+            select(skill_versions.c.skill_id, skill_versions.c.frontmatter)
+            .order_by(skill_versions.c.skill_id, skill_versions.c.created_at.desc())
+            .ext(distinct_on(skill_versions.c.skill_id))
+        )
+        return {
+            r.skill_id: str(r.frontmatter.get("description", ""))
+            for r in (await self._session.execute(stmt)).all()
+        }
+
     async def channels_of(self, skill_id: uuid.UUID) -> dict[Channel, str]:
         return (await self._channels(skill_id)).get(skill_id, {})
 

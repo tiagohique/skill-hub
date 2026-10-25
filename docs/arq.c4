@@ -75,7 +75,7 @@ model {
 
       shell = component 'Layout e navegação' {
         technology 'React'
-        description 'Navbar global com botão de tema e Sair, menu hambúrguer no celular e rotas por hash.'
+        description 'Navbar global com botão de tema e menu do usuário (ícone; Sair ao passar o mouse ou clicar), rodapé com links para Swagger e MCP, menu hambúrguer no celular e rotas por hash.'
         style {
           color sky
         }
@@ -91,7 +91,7 @@ model {
 
       skillsList = component 'Lista de skills' {
         technology 'React'
-        description 'Tabela no desktop e cards no celular, com busca por nome e filtros de domínio e status (no cliente).'
+        description 'Tabela no desktop e cards no celular, com coluna de descrição, busca por nome e filtros de domínio e status (no cliente).'
         style {
           color sky
         }

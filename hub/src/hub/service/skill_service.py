@@ -84,11 +84,13 @@ class SkillService:
             skills = await catalog.list_skills()
             channels = await catalog.list_channels()
             latest = await catalog.latest_statuses()
+            descriptions = await catalog.latest_descriptions()
         return [
             SkillSummary(
                 name=s.name,
                 domain=s.domain,
                 owner=s.owner,
+                description=descriptions.get(s.id, ""),
                 stable=channels.get(s.id, {}).get(Channel.STABLE),
                 beta=channels.get(s.id, {}).get(Channel.BETA),
                 status=_overall_status(channels.get(s.id, {}), latest.get(s.id)),

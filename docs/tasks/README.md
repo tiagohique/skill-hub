@@ -36,3 +36,4 @@ Status: `pendente` · `em andamento` · `concluída`. Atualize no mesmo commit d
 | 29 | [Filtro de status](29-status-filter.md) | login | 26 | concluída |
 | 30 | [CLAUDE.md e arq.c4](30-docs-login-theme.md) | login | 25 a 29 | concluída |
 | 31 | [Swagger da API e referência do MCP](31-api-docs.md) | login | 30 | concluída |
+| 32 | [Menu do usuário, rodapé e descrição](32-user-menu-footer-description.md) | login | 31 | concluída |
