@@ -1,0 +1,18 @@
+# Skills Hub (POC v3). Tudo roda em contêiner; nada da aplicação roda no host.
+services:
+  hub:
+    build:
+      context: ./hub
+      target: runtime
+    ports:
+      - "8000:8000"
+
+  # Testes, lint, tipos e scripts. Uso: docker compose run --rm hub-test pytest -v
+  hub-test:
+    profiles: ["test"]
+    build:
+      context: ./hub
+      target: dev
+    volumes:
+      - ./hub:/app
+      - ./scripts:/scripts

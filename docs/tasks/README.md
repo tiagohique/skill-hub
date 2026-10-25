@@ -5,7 +5,7 @@ Status: `pendente` · `em andamento` · `concluída`. Atualize no mesmo commit d
 | Nº | Tarefa | Fase | Depende de | Status |
 |---|---|---|---|---|
 | 00 | [Documentação em docs/](00-docs.md) | 0 | — | concluída |
-| 01 | [Esqueleto do hub em contêiner](01-hub-skeleton.md) | 0 | 00 | pendente |
+| 01 | [Esqueleto do hub em contêiner](01-hub-skeleton.md) | 0 | 00 | concluída |
 | 02 | [PostgreSQL com papéis separados](02-postgres-roles.md) | 0 | 01 | pendente |
 | 03 | [Domínio: erros, ciclo de vida, semver, hash](03-domain.md) | 1 | 01 | pendente |
 | 04 | [Validação de upload](04-upload-validation.md) | 1 | 03 | pendente |

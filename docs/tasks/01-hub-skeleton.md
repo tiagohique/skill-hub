@@ -27,9 +27,9 @@ docker compose run --rm hub-test sh -c "ruff check . && ruff format --check . &&
 ```
 
 ## Critérios de aceite
-- [ ] Testes falham antes e passam depois
-- [ ] ruff e mypy limpos
-- [ ] Nada instalado no host
+- [x] Testes falham antes e passam depois
+- [x] ruff e mypy limpos
+- [x] Nada instalado no host
 
 ## Notas de execução
-—
+O serviço `hub` do Compose só sobe a partir da Tarefa 02 (precisa de `DATABASE_URL`); aqui só a imagem `runtime` foi construída. Dockerfile ganha `COPY alembic` na Tarefa 05.
