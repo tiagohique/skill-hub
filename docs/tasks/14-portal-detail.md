@@ -23,8 +23,8 @@ docker compose run --rm portal npm run build
 ```
 
 ## Critérios de aceite
-- [ ] Botões corretos por status
-- [ ] Transição inválida exibe a mensagem do hub
+- [x] Botões corretos por status
+- [x] Transição inválida exibe a mensagem do hub
 
 ## Notas de execução
-—
+Verificado no navegador: `draft→beta→stable` pelos botões, com canais e lista atualizados. Depreciar (com `confirm()`) coberto pelos testes da API; não clicado no navegador para manter a skill de demonstração.
