@@ -11,6 +11,8 @@ STATUS_BY_CODE = {
     "version_exists": 409,
     "invalid_transition": 409,
     "not_found": 404,
+    "unauthorized": 401,
+    "invalid_request": 422,
     "integrity_error": 500,
 }
 

@@ -6,10 +6,12 @@ from mcp.server.streamable_http_manager import StreamableHTTPASGIApp
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from starlette.routing import Route
 
+from hub.api.auth import router as auth_router
 from hub.api.errors import install_error_handlers
 from hub.api.routes import router
 from hub.config import Settings
 from hub.mcp.server import build_mcp_server, build_session_manager
+from hub.service.auth_service import AuthService
 from hub.service.skill_service import SkillService
 from hub.service.validation import UploadLimits
 from hub.store.factory import make_blob_store
@@ -26,6 +28,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         engine = create_async_engine(settings.database_url)
         sessions = async_sessionmaker(engine, expire_on_commit=False)
+        app.state.auth = AuthService(sessions)
         app.state.service = SkillService(
             sessions,
             make_blob_store(settings, sessions),
@@ -39,6 +42,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app = FastAPI(title="Skills Hub", lifespan=lifespan)
     app.state.settings = settings
     install_error_handlers(app)
+    app.include_router(auth_router)
     app.include_router(router)
     app.router.routes.append(Route("/mcp", endpoint=StreamableHTTPASGIApp(mcp_manager)))
     return app

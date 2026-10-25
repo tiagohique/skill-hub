@@ -66,6 +66,7 @@ class SkillSummary:
     owner: str
     stable: str | None
     beta: str | None
+    status: Status
 
 
 @dataclass(frozen=True)

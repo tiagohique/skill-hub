@@ -31,6 +31,15 @@ from hub.store.blob_store import BlobStore
 DEFAULT_DOMAIN = "geral"
 
 
+def _overall_status(channels: dict[Channel, str], latest: Status | None) -> Status:
+    """Stable se há canal stable; senão beta se há canal beta; senão a versão mais recente."""
+    if Channel.STABLE in channels:
+        return Status.STABLE
+    if Channel.BETA in channels:
+        return Status.BETA
+    return latest or Status.DRAFT
+
+
 class SkillService:
     def __init__(
         self,
@@ -74,6 +83,7 @@ class SkillService:
             catalog = CatalogRepository(session)
             skills = await catalog.list_skills()
             channels = await catalog.list_channels()
+            latest = await catalog.latest_statuses()
         return [
             SkillSummary(
                 name=s.name,
@@ -81,6 +91,7 @@ class SkillService:
                 owner=s.owner,
                 stable=channels.get(s.id, {}).get(Channel.STABLE),
                 beta=channels.get(s.id, {}).get(Channel.BETA),
+                status=_overall_status(channels.get(s.id, {}), latest.get(s.id)),
             )
             for s in skills
         ]

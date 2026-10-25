@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Any
 
 from sqlalchemy import insert, select, update
+from sqlalchemy.dialects.postgresql import distinct_on
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import IntegrityError as SAIntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -169,6 +170,15 @@ class CatalogRepository:
         await self._session.execute(
             update(channels).where(channels.c.version_id == version_id).values(version_id=None)
         )
+
+    async def latest_statuses(self) -> dict[uuid.UUID, Status]:
+        """Status da versão mais recente de cada skill."""
+        stmt = (
+            select(skill_versions.c.skill_id, skill_versions.c.status)
+            .order_by(skill_versions.c.skill_id, skill_versions.c.created_at.desc())
+            .ext(distinct_on(skill_versions.c.skill_id))
+        )
+        return {r.skill_id: Status(r.status) for r in (await self._session.execute(stmt)).all()}
 
     async def channels_of(self, skill_id: uuid.UUID) -> dict[Channel, str]:
         return (await self._channels(skill_id)).get(skill_id, {})

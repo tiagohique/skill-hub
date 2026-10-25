@@ -24,7 +24,7 @@ docker compose run --rm --no-deps portal npm test
 ```
 
 ## Critérios de aceite
-- [ ] Testes e verificação da tarefa passam
+- [x] Testes e verificação da tarefa passam
 
 ## Notas de execução
-(a preencher)
+`api/auth.py` (login, logout, me, theme; cookie `hub_session` HttpOnly SameSite=Lax), `CurrentUser` em todas as rotas de skills, ator = username, `status` geral na lista (`_overall_status`; `latest_statuses` com `DISTINCT ON`). `/api/health` e `/mcp` seguem abertos. Testes de API existentes passaram a logar como admin (fixture `client`; `anon` é o cliente sem login).

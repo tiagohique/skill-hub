@@ -16,7 +16,8 @@ def skill_md(version_extra: str = "") -> bytes:
 
 
 @pytest_asyncio.fixture
-async def client(clean_db: None) -> AsyncIterator[httpx.AsyncClient]:
+async def anon(clean_db: None) -> AsyncIterator[httpx.AsyncClient]:
+    """Cliente sem login."""
     settings = Settings(
         database_url=os.environ["TEST_DATABASE_URL"],
         migration_database_url=os.environ["TEST_MIGRATION_DATABASE_URL"],
@@ -30,6 +31,14 @@ async def client(clean_db: None) -> AsyncIterator[httpx.AsyncClient]:
         transport = httpx.ASGITransport(app=app)
         async with httpx.AsyncClient(transport=transport, base_url="http://test") as c:
             yield c
+
+
+@pytest_asyncio.fixture
+async def client(anon: httpx.AsyncClient) -> httpx.AsyncClient:
+    """Cliente já autenticado como admin (o cookie fica na sessão do cliente)."""
+    r = await anon.post("/api/auth/login", json={"username": "admin", "password": "admin"})
+    assert r.status_code == 200, r.text
+    return anon
 
 
 async def upload(
@@ -68,7 +77,7 @@ async def test_upload_md_returns_201_draft(client: httpx.AsyncClient) -> None:
     assert (body["name"], body["version"], body["status"]) == ("my-skill", "1.0.0", "draft")
     assert body["files"][0]["path"] == "SKILL.md"
     assert len(body["files"][0]["sha256"]) == 64
-    assert body["created_by"] == "portal"
+    assert body["created_by"] == "admin"
 
 
 async def test_repeated_version_is_409(client: httpx.AsyncClient) -> None:
@@ -107,9 +116,10 @@ async def test_list_skills_shows_channels(client: httpx.AsyncClient) -> None:
     assert item == {
         "name": "my-skill",
         "domain": "geral",
-        "owner": "portal",
+        "owner": "admin",
         "stable": None,
         "beta": None,
+        "status": "draft",
     }
     await promote(client, "beta")
     await promote(client, "stable")

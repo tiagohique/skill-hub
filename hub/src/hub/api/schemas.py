@@ -20,6 +20,7 @@ class SkillSummaryOut(_Out):
     owner: str
     stable: str | None
     beta: str | None
+    status: str
 
 
 class VersionSummaryOut(_Out):
@@ -52,3 +53,17 @@ class VersionDetailOut(_Out):
 
 class PromoteIn(BaseModel):
     to: Literal["beta", "stable"]
+
+
+class LoginIn(BaseModel):
+    username: str
+    password: str
+
+
+class ThemeIn(BaseModel):
+    theme: str
+
+
+class UserOut(_Out):
+    username: str
+    theme: str
