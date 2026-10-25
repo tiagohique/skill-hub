@@ -115,14 +115,15 @@ class CatalogRepository:
             ],
         )
 
-    async def find_version(self, skill_id: uuid.UUID, version: str) -> VersionRow | None:
-        row = (
-            await self._session.execute(
-                select(skill_versions).where(
-                    skill_versions.c.skill_id == skill_id, skill_versions.c.version == version
-                )
-            )
-        ).first()
+    async def find_version(
+        self, skill_id: uuid.UUID, version: str, *, for_update: bool = False
+    ) -> VersionRow | None:
+        stmt = select(skill_versions).where(
+            skill_versions.c.skill_id == skill_id, skill_versions.c.version == version
+        )
+        if for_update:  # serializa transições concorrentes da mesma versão
+            stmt = stmt.with_for_update()
+        row = (await self._session.execute(stmt)).first()
         return _version_row(row) if row else None
 
     async def list_versions(self, skill_id: uuid.UUID) -> list[VersionRow]:

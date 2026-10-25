@@ -96,3 +96,12 @@ class VersionDetail:
     created_by: str
     created_at: datetime
     files: list[FileEntry]
+
+
+@dataclass(frozen=True)
+class PublishedSkill:
+    name: str
+    description: str
+    version: str
+    bundle_sha256: str
+    files: list[FileEntry]

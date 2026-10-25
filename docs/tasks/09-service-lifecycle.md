@@ -23,8 +23,8 @@ docker compose run --rm hub-test pytest tests/integration/test_skill_service_lif
 ```
 
 ## Critérios de aceite
-- [ ] Review Focus 5 coberto
-- [ ] Atomicidade provada por teste
+- [x] Review Focus 5 coberto
+- [x] Atomicidade provada por teste
 
 ## Notas de execução
-—
+`find_version(..., for_update=True)` serializa transições concorrentes da mesma versão (o app tem `UPDATE (status)`, suficiente para `FOR UPDATE`). Promover para `stable` não limpa o canal `beta` (ele segue apontando para a mesma versão); `deprecated`/`retired` limpam todos os canais da versão. O audit `mcp_read` só é gravado depois que o hash foi conferido (entrega efetiva).

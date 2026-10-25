@@ -13,7 +13,7 @@ Status: `pendente` · `em andamento` · `concluída`. Atualize no mesmo commit d
 | 06 | [BlobStore e testes de contrato](06-blobstore.md) | 2 | 03, 05 | concluída |
 | 07 | [Repositórios](07-repositories.md) | 2 | 03, 05 | concluída |
 | 08 | [SkillService: upload e consultas](08-service-upload.md) | 3 | 04, 06, 07 | concluída |
-| 09 | [SkillService: governança e entrega](09-service-lifecycle.md) | 3 | 08 | pendente |
+| 09 | [SkillService: governança e entrega](09-service-lifecycle.md) | 3 | 08 | concluída |
 | 10 | [API REST](10-rest-api.md) | 4 | 09 | pendente |
 | 11 | [Spike: extensão de Skills no MCP](11-mcp-spike.md) | 4 | 01 | pendente |
 | 12 | [Servidor MCP](12-mcp-server.md) | 4 | 09, 11 | pendente |
