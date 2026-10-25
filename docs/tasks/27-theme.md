@@ -24,7 +24,7 @@ docker compose run --rm --no-deps portal npm test
 ```
 
 ## Critérios de aceite
-- [ ] Testes e verificação da tarefa passam
+- [x] Testes e verificação da tarefa passam
 
 ## Notas de execução
-(a preencher)
+Variante `dark` por classe (`@custom-variant`), script no `index.html` contra o flash, `theme.ts`/`ThemeContext.tsx`/`ThemeToggle.tsx`. As classes `zinc-*` das telas viraram pares claro/`dark:` por script e depois ajustei à mão cabeçalhos de card e badges. O botão de tema fica na navbar (desktop e celular). A verificação visual completa acontece depois da Tarefa 28, pois a API agora exige login.

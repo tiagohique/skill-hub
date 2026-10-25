@@ -28,8 +28,8 @@ export function SkillsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-50 tracking-tight">Skills</h1>
-          <p className="text-sm text-zinc-400 mt-1">Gerencie e versione suas skills de IA.</p>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">Skills</h1>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Gerencie e versione suas skills de IA.</p>
         </div>
         <a
           href="#/upload"
@@ -43,7 +43,7 @@ export function SkillsPage() {
       {error && (
         <div
           role="alert"
-          className="p-4 mb-6 rounded-lg flex items-start gap-3 border bg-red-950/30 border-red-900/50 text-red-400"
+          className="p-4 mb-6 rounded-lg flex items-start gap-3 border bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 text-red-700 dark:text-red-400"
         >
           <AlertCircle size={20} className="shrink-0" />
           <p className="text-sm font-medium pt-0.5">{error}</p>
@@ -64,7 +64,7 @@ export function SkillsPage() {
                 placeholder="Buscar skills..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-shadow placeholder:text-zinc-600"
+                className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-shadow placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
               />
             </div>
             <div className="relative sm:w-56">
@@ -73,7 +73,7 @@ export function SkillsPage() {
                 aria-label="Filtrar por domínio"
                 value={domainFilter}
                 onChange={(e) => setDomainFilter(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-lg pl-10 pr-8 py-2 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-shadow"
+                className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg pl-10 pr-8 py-2 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-shadow"
               >
                 <option value="todos">Todos os domínios</option>
                 {domainsOf(skills).map((d) => (
@@ -86,32 +86,32 @@ export function SkillsPage() {
           </div>
 
           {/* Tabela (Desktop) */}
-          <div className="hidden md:block overflow-hidden border border-zinc-800 rounded-xl bg-zinc-900/50 shadow-sm">
+          <div className="hidden md:block overflow-hidden border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900/50 shadow-sm">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-zinc-800 bg-zinc-900/80">
-                  <th className="px-6 py-4 text-xs font-semibold text-zinc-400 uppercase tracking-wider w-1/2">Nome</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Domínio</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Stable</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-zinc-400 uppercase tracking-wider">Beta</th>
+                <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/80">
+                  <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider w-1/2">Nome</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Domínio</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Stable</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Beta</th>
                   <th className="px-6 py-4"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-800/50">
+              <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800/50">
                 {filtered.map((skill) => (
                   <tr
                     key={skill.name}
                     onClick={() => {
                       window.location.hash = detailHref(skill.name);
                     }}
-                    className="hover:bg-zinc-800/30 transition-colors group cursor-pointer"
+                    className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors group cursor-pointer"
                   >
                     <td className="px-6 py-4">
                       <a href={detailHref(skill.name)} className="flex items-center gap-3 outline-none">
-                        <div className="p-2 bg-zinc-800 rounded-md text-zinc-400 group-hover:text-indigo-400 group-hover:bg-indigo-500/10 transition-colors">
+                        <div className="p-2 bg-zinc-100 dark:bg-zinc-800 rounded-md text-zinc-500 dark:text-zinc-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/10 transition-colors">
                           <Terminal size={16} />
                         </div>
-                        <span className="font-medium text-zinc-200 group-hover:text-indigo-300 transition-colors break-all">
+                        <span className="font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 transition-colors break-all">
                           {skill.name}
                         </span>
                       </a>
@@ -128,7 +128,7 @@ export function SkillsPage() {
                     <td className="px-6 py-4 text-right">
                       <ChevronRight
                         size={18}
-                        className="text-zinc-600 group-hover:text-zinc-300 inline-block opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1"
+                        className="text-zinc-400 dark:text-zinc-600 group-hover:text-zinc-700 dark:group-hover:text-zinc-300 inline-block opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1"
                       />
                     </td>
                   </tr>
@@ -150,12 +150,12 @@ export function SkillsPage() {
               <a
                 key={skill.name}
                 href={detailHref(skill.name)}
-                className="block bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 active:bg-zinc-800/50 transition-colors"
+                className="block bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 active:bg-zinc-100 dark:active:bg-zinc-800/50 transition-colors"
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <Terminal size={18} className="text-zinc-500 shrink-0" />
-                    <span className="font-medium text-zinc-200 break-all">{skill.name}</span>
+                    <span className="font-medium text-zinc-800 dark:text-zinc-200 break-all">{skill.name}</span>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-x-6 gap-y-3 mt-4 text-sm">
@@ -175,7 +175,7 @@ export function SkillsPage() {
               </a>
             ))}
             {filtered.length === 0 && (
-              <div className="py-8 text-center text-zinc-500 border border-zinc-800 rounded-xl bg-zinc-900/50">
+              <div className="py-8 text-center text-zinc-500 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900/50">
                 {emptyText}
               </div>
             )}
