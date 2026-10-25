@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from starlette.routing import Route
 
 from hub.api.auth import router as auth_router
+from hub.api.docs import router as docs_router
 from hub.api.errors import install_error_handlers
 from hub.api.routes import router
 from hub.config import Settings
@@ -39,9 +40,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             yield
         await engine.dispose()
 
-    app = FastAPI(title="Skills Hub", lifespan=lifespan)
+    app = FastAPI(
+        title="Skills Hub",
+        lifespan=lifespan,
+        # /docs, /openapi.json e /mcp-docs são servidos por api/docs.py, com senha.
+        docs_url=None,
+        redoc_url=None,
+        openapi_url=None,
+    )
     app.state.settings = settings
     install_error_handlers(app)
+    app.include_router(docs_router)
     app.include_router(auth_router)
     app.include_router(router)
     app.router.routes.append(Route("/mcp", endpoint=StreamableHTTPASGIApp(mcp_manager)))

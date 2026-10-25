@@ -41,6 +41,27 @@ class SkillsGetParams(types.RequestParams):
     channel: str | None = None
 
 
+_CHANNEL_SCHEMA = {"type": "string", "enum": ["stable", "beta"], "default": "stable"}
+
+# Tools de fallback; também alimentam a página de documentação do MCP (/mcp-docs).
+TOOLS: list[dict[str, Any]] = [
+    {
+        "name": "list_skills",
+        "description": "Lista as skills aprovadas (versão, arquivos e digests SHA-256).",
+        "input_schema": {"type": "object", "properties": {"channel": _CHANNEL_SCHEMA}},
+    },
+    {
+        "name": "get_skill",
+        "description": "Devolve o SKILL.md de uma skill aprovada e seus arquivos.",
+        "input_schema": {
+            "type": "object",
+            "properties": {"name": {"type": "string"}, "channel": _CHANNEL_SCHEMA},
+            "required": ["name"],
+        },
+    },
+]
+
+
 # ---------- URIs, canais e entradas ----------
 
 
@@ -165,29 +186,10 @@ def build_mcp_server(get_service: ServiceProvider) -> Server[Any]:
             )
         return types.ReadResourceResult(contents=[content])
 
-    channel_schema = {"type": "string", "enum": ["stable", "beta"], "default": "stable"}
-
     async def list_tools(
         ctx: Ctx, params: types.PaginatedRequestParams | None
     ) -> types.ListToolsResult:
-        return types.ListToolsResult(
-            tools=[
-                types.Tool(
-                    name="list_skills",
-                    description="Lista as skills aprovadas (versão, arquivos e digests SHA-256).",
-                    input_schema={"type": "object", "properties": {"channel": channel_schema}},
-                ),
-                types.Tool(
-                    name="get_skill",
-                    description="Devolve o SKILL.md de uma skill aprovada e seus arquivos.",
-                    input_schema={
-                        "type": "object",
-                        "properties": {"name": {"type": "string"}, "channel": channel_schema},
-                        "required": ["name"],
-                    },
-                ),
-            ]
-        )
+        return types.ListToolsResult(tools=[types.Tool(**tool) for tool in TOOLS])
 
     async def call_tool(ctx: Ctx, params: types.CallToolRequestParams) -> types.CallToolResult:
         args = params.arguments or {}

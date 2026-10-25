@@ -17,8 +17,12 @@ STATUS_BY_CODE = {
 }
 
 
-def error_response(status: int, code: str, message: str) -> JSONResponse:
-    return JSONResponse(status_code=status, content={"code": code, "message": message})
+def error_response(
+    status: int, code: str, message: str, headers: dict[str, str] | None = None
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=status, content={"code": code, "message": message}, headers=headers
+    )
 
 
 def install_error_handlers(app: FastAPI) -> None:
@@ -35,4 +39,4 @@ def install_error_handlers(app: FastAPI) -> None:
     async def http_error(_: Request, exc: StarletteHTTPException) -> JSONResponse:
         code = "not_found" if exc.status_code == 404 else "http_error"
         message = "Recurso não encontrado." if exc.status_code == 404 else str(exc.detail)
-        return error_response(exc.status_code, code, message)
+        return error_response(exc.status_code, code, message, dict(exc.headers or {}))

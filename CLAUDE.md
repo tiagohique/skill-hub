@@ -192,6 +192,8 @@ draft --> beta --> stable --> deprecated --> retired
 
 `status` geral da skill na lista: `stable` se há canal stable; senão `beta` se há canal beta; senão o status da versão mais recente (`draft`, `deprecated` ou `retired`).
 
+**Documentação:** `/docs` (Swagger UI), `/openapi.json` e `/mcp-docs` (referência do MCP: métodos, tools, URIs e canais; o MCP não tem Swagger padrão) ficam fora do `/api`, com HTTP Basic e a senha `DOCS_PASSWORD` (padrão `B3123`, só para ambiente local; o usuário é ignorado). O portal tem os links "API (Swagger)" e "MCP" na navbar e faz proxy desses caminhos. A senha da documentação não abre a API.
+
 Erros em JSON com `code` e `message`. Upload que repete versão: 409. A transição `deprecated→retired` existe só no `SkillService` (sem rota REST).
 
 ## Portal (React)
@@ -248,7 +250,7 @@ skills-hub/
 
 ## Variáveis de ambiente
 
-`DATABASE_URL` (usuário da aplicação), `MIGRATION_DATABASE_URL` (dono do esquema, usado nas migrações), `BLOB_BACKEND` (`postgres`), `MAX_FILE_BYTES`, `MAX_BUNDLE_BYTES`, `MAX_FILES`, mais as variáveis do Postgres (`POSTGRES_*`, `APP_DB_*`). Todas documentadas em `.env.example`. Nenhum segredo no repositório.
+`DOCS_PASSWORD` (senha do Swagger e de `/mcp-docs`), `DATABASE_URL` (usuário da aplicação), `MIGRATION_DATABASE_URL` (dono do esquema, usado nas migrações), `BLOB_BACKEND` (`postgres`), `MAX_FILE_BYTES`, `MAX_BUNDLE_BYTES`, `MAX_FILES`, mais as variáveis do Postgres (`POSTGRES_*`, `APP_DB_*`). Todas documentadas em `.env.example`. Nenhum segredo no repositório.
 
 ## Compose
 

@@ -18,6 +18,7 @@ class Settings:
     max_file_bytes: int
     max_bundle_bytes: int
     max_files: int
+    docs_password: str = "B3123"  # senha do Swagger e da página do MCP (POC)
 
     @classmethod
     def from_env(cls, env: Mapping[str, str] = os.environ) -> "Settings":
@@ -28,4 +29,5 @@ class Settings:
             max_file_bytes=int(env.get("MAX_FILE_BYTES", 1048576)),
             max_bundle_bytes=int(env.get("MAX_BUNDLE_BYTES", 5242880)),
             max_files=int(env.get("MAX_FILES", 100)),
+            docs_password=env.get("DOCS_PASSWORD", "B3123"),
         )

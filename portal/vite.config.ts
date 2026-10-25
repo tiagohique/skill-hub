@@ -11,7 +11,10 @@ export default defineConfig(({ mode }) => {
     server: {
       host: true,
       port: 5173,
-      proxy: { "/api": { target, changeOrigin: true } },
+      // /docs, /openapi.json e /mcp-docs: Swagger da API e referência do MCP (pedem a senha da documentação).
+      proxy: Object.fromEntries(
+        ["/api", "/docs", "/openapi.json", "/mcp-docs"].map((p) => [p, { target, changeOrigin: true }]),
+      ),
     },
   };
 });

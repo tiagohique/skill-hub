@@ -145,6 +145,14 @@ model {
         }
       }
 
+      docs = component 'Documentação (Swagger e MCP)' {
+        technology 'FastAPI + Swagger UI'
+        description '/docs, /openapi.json e /mcp-docs, com senha simples (HTTP Basic). Referência gerada do próprio servidor MCP.'
+        style {
+          color indigo
+        }
+      }
+
       auth = component 'AuthService' {
         #governance
         technology 'hashlib.scrypt'
@@ -234,6 +242,8 @@ model {
 
   hub_system.hub.api -> hub_system.hub.service 'chama'
   hub_system.hub.mcp -> hub_system.hub.service 'chama'
+  hub_system.hub.api -> hub_system.hub.docs 'serve a documentação'
+  hub_system.hub.docs -> hub_system.hub.mcp 'lista tools e métodos'
   hub_system.hub.api -> hub_system.hub.auth 'exige sessão nas rotas de skills'
   hub_system.hub.auth -> hub_system.hub.repositories 'usuários e sessões'
   hub_system.hub.service -> hub_system.hub.blobStore 'put e get de conteúdo'

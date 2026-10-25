@@ -12,6 +12,12 @@ const LINKS: { page: Page; href: string; label: string }[] = [
   { page: "upload", href: "#/upload", label: "Enviar skill" },
 ];
 
+// Documentação servida pelo hub (pede a senha da documentação); abre em outra aba.
+const DOCS = [
+  { href: "/docs", label: "API (Swagger)" },
+  { href: "/mcp-docs", label: "MCP" },
+];
+
 export function Layout({ active, children }: { active: Page | null; children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { theme } = useTheme();
@@ -53,6 +59,17 @@ export function Layout({ active, children }: { active: Page | null; children: Re
                 }`}
               >
                 {l.label}
+              </a>
+            ))}
+            {DOCS.map((d) => (
+              <a
+                key={d.href}
+                href={d.href}
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2 rounded-md text-sm font-medium transition-colors text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-900 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50"
+              >
+                {d.label}
               </a>
             ))}
           </nav>
@@ -101,6 +118,17 @@ export function Layout({ active, children }: { active: Page | null; children: Re
                 }`}
               >
                 {l.label}
+              </a>
+            ))}
+            {DOCS.map((d) => (
+              <a
+                key={d.href}
+                href={d.href}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full text-left px-4 py-3 min-h-11 rounded-lg text-base font-medium text-zinc-500 dark:text-zinc-400"
+              >
+                {d.label}
               </a>
             ))}
             <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-2" />
