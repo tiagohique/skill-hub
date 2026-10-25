@@ -91,7 +91,7 @@ model {
 
       mcp = component 'Servidor MCP' {
         technology 'SDK oficial mcp (Streamable HTTP)'
-        description 'skills/list, skills/get e resources/read. Adaptador fino, sem regra de negócio.'
+        description 'skills/list e skills/get (SEP-2640, registrados à mão no mcp 2.3), resources/read e tools de fallback list_skills e get_skill. Adaptador fino, sem regra de negócio.'
         style {
           color indigo
         }
@@ -102,6 +102,14 @@ model {
         description 'Regras de negócio: draft, beta, stable. Versão imutável. SHA-256 por arquivo e por pacote. Única porta de entrada para dados e blobs.'
         style {
           color amber
+        }
+      }
+
+      repositories = component 'Repositories' {
+        technology 'SQLAlchemy 2 async (Core)'
+        description 'Única camada que fala SQL: catálogo e auditoria. Não faz commit; a transação é do SkillService.'
+        style {
+          color indigo
         }
       }
 
@@ -166,7 +174,8 @@ model {
     }
   }
   hub_system.hub.pgStore -> hub_system.db.blobs 'SQL'
-  hub_system.hub.service -> hub_system.db.catalog 'SQL via repositories'
+  hub_system.hub.service -> hub_system.hub.repositories 'consulta e grava o catálogo'
+  hub_system.hub.repositories -> hub_system.db.catalog 'SQL'
 }
 
 deployment {
@@ -205,14 +214,16 @@ views {
     hub_system.hub.service -> hub_system.hub.blobStore 'put de cada arquivo'
     hub_system.hub.blobStore -> hub_system.hub.pgStore 'delega'
     hub_system.hub.pgStore -> hub_system.db.blobs 'INSERT por sha256'
-    hub_system.hub.service -> hub_system.db.catalog 'grava versão e auditoria'
+    hub_system.hub.service -> hub_system.hub.repositories 'grava versão, arquivos e auditoria'
+    hub_system.hub.repositories -> hub_system.db.catalog 'INSERT'
   }
 
   dynamic view consume {
     title 'Fluxo: Claude Code lê uma skill stable'
     claude -> hub_system.hub.mcp 'skills/list e skills/get'
     hub_system.hub.mcp -> hub_system.hub.service 'busca versão stable'
-    hub_system.hub.service -> hub_system.db.catalog 'lê versão e hashes'
+    hub_system.hub.service -> hub_system.hub.repositories 'lê versão e hashes'
+    hub_system.hub.repositories -> hub_system.db.catalog 'SELECT'
     hub_system.hub.service -> hub_system.hub.blobStore 'get de cada arquivo'
     hub_system.hub.blobStore -> hub_system.hub.pgStore 'delega'
     hub_system.hub.pgStore -> hub_system.db.blobs 'SELECT e confere o hash'
