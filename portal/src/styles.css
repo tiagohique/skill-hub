@@ -1,265 +1,57 @@
-:root {
-  --bg: #f7f7f9;
-  --surface: #ffffff;
-  --text: #1c1c28;
-  --muted: #666a7a;
-  --border: #dcdde4;
-  --accent: #3b4cca;
-  --accent-text: #ffffff;
-  --danger: #b3261e;
-  --danger-bg: #fdecea;
-  --ok: #1b7a43;
-  --warn: #8a5a00;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-  color: var(--text);
-  background: var(--bg);
-}
+@import "tailwindcss";
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #14151b;
-    --surface: #1d1f27;
-    --text: #e8e9f0;
-    --muted: #9a9eb0;
-    --border: #2f323f;
-    --accent: #8c9bff;
-    --accent-text: #11131a;
-    --danger: #ff8a80;
-    --danger-bg: #3a1e1c;
-    --ok: #6fd69a;
-    --warn: #f0c36a;
+/* O protótipo usa animate-in/fade-in/slide-in do plugin tailwindcss-animate (fora do Tailwind
+   puro); estes keyframes reproduzem o efeito sem uma terceira dependência. */
+@theme {
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+  --animate-fade-in: fade-in 0.5s ease-out;
+  --animate-slide-up: slide-up 0.5s ease-out;
+  --animate-slide-down: slide-down 0.2s ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes slide-down {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: var(--bg);
-}
-
-a {
-  color: var(--accent);
-}
-
-.topbar {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  padding: 0.75rem 1.5rem;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
-
-.brand {
-  font-weight: 700;
-  text-decoration: none;
-  color: var(--text);
-}
-
-.topbar nav {
-  display: flex;
-  gap: 1.25rem;
-}
-
-.topbar nav a {
-  text-decoration: none;
-  color: var(--muted);
-}
-
-.topbar nav a[aria-current="page"] {
-  color: var(--text);
-  font-weight: 600;
-}
-
-.container {
-  max-width: 62rem;
-  margin: 0 auto;
-  padding: 1.5rem;
-}
-
-h1 {
-  margin-top: 0;
-  font-size: 1.5rem;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-th,
-td {
-  padding: 0.6rem 0.9rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-}
-
-th {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
-
-.muted {
-  color: var(--muted);
-}
-
-.alert {
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  color: var(--danger);
-  background: var(--danger-bg);
-}
-
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.8rem;
-}
-
-h2 {
-  font-size: 1.1rem;
-  margin: 1.5rem 0 0.5rem;
-}
-
-tr.selected td {
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
-}
-
-.panel {
-  margin-top: 1.5rem;
-  padding: 0 1.25rem 1.25rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.actions {
-  display: flex;
-  gap: 0.75rem;
-  margin: 0.5rem 0 1rem;
-}
-
-button {
-  font: inherit;
-  padding: 0.45rem 0.9rem;
-  border: 1px solid var(--accent);
-  border-radius: 6px;
-  color: var(--accent-text);
-  background: var(--accent);
-  cursor: pointer;
-}
-
-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-button.danger {
-  color: var(--danger);
-  background: transparent;
-  border-color: var(--danger);
-}
-
-button.link {
-  padding: 0;
-  border: none;
-  color: var(--accent);
-  background: none;
-  text-align: left;
-  word-break: break-all;
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.1rem 0.55rem;
-  font-size: 0.75rem;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  color: var(--muted);
-}
-
-.badge-beta {
-  color: var(--warn);
-  border-color: var(--warn);
-}
-
-.badge-stable {
-  color: var(--ok);
-  border-color: var(--ok);
-}
-
-.badge-deprecated,
-.badge-retired {
-  color: var(--danger);
-  border-color: var(--danger);
-}
-
-.dropzone {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 9rem;
-  padding: 1rem;
-  text-align: center;
-  color: var(--muted);
-  background: var(--surface);
-  border: 2px dashed var(--border);
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.dropzone.dragging,
-.dropzone:focus-visible {
-  border-color: var(--accent);
-  outline: none;
-}
-
-.field {
-  display: block;
-  margin: 1.25rem 0 0.5rem;
-  font-weight: 600;
-}
-
-.field input {
-  display: block;
-  width: 16rem;
-  margin-top: 0.35rem;
-  padding: 0.45rem 0.6rem;
-  font: inherit;
-  color: var(--text);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-}
-
-.field input[aria-invalid="true"] {
-  border-color: var(--danger);
-}
-
-form button[type="submit"] {
-  margin-top: 1rem;
-}
-
-.hint code {
-  padding: 0.05rem 0.35rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-}
-
-.field-error {
-  margin: 0.25rem 0 0.5rem;
-  color: var(--danger);
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: #09090b;
+  }
+  body {
+    @apply bg-zinc-950 font-sans text-zinc-50 antialiased;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
