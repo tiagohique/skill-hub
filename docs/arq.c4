@@ -52,7 +52,7 @@ specification {
 
 model {
   dev = actor 'Desenvolvedor' {
-    description 'Edita o SKILL.md na própria máquina e envia pelo portal.'
+    description 'Edita o SKILL.md na própria máquina e envia pelo portal, no computador ou no celular (mesma rede local).'
   }
 
   claude = actor 'Claude Code' {
@@ -66,11 +66,51 @@ model {
     description 'Repositório central e versionado de skills, servido por MCP.'
 
     portal = container 'Portal' {
-      technology 'React + Vite (porta 5173)'
-      description 'Upload do SKILL.md ou .zip, listagem, detalhe e promoção de versões. Fala só com a API REST.'
+      technology 'React + Vite + Tailwind CSS (porta 5173)'
+      description 'Tema dark e responsivo. Upload do SKILL.md ou .zip, lista com busca e filtro, detalhe e promoção de versões. Fala só com a API REST. Aberto na rede local, sem login (POC).'
       style {
         color sky
         shape browser
+      }
+
+      shell = component 'Layout e navegação' {
+        technology 'React'
+        description 'Navbar global, menu hambúrguer no celular e rotas por hash.'
+        style {
+          color sky
+        }
+      }
+
+      skillsList = component 'Lista de skills' {
+        technology 'React'
+        description 'Tabela no desktop e cards no celular, com busca por nome e filtro por domínio (no cliente).'
+        style {
+          color sky
+        }
+      }
+
+      uploadForm = component 'Envio de skill' {
+        technology 'React'
+        description 'Arrastar e soltar .md ou .zip, versão semver com ajuda de correção e erros reais da API.'
+        style {
+          color sky
+        }
+      }
+
+      skillDetail = component 'Detalhe da skill' {
+        technology 'React'
+        description 'Versões, status, arquivos com hash e botões Promover e Depreciar.'
+        style {
+          color sky
+        }
+      }
+
+      apiClient = component 'Cliente da API' {
+        technology 'fetch'
+        description 'Única saída do portal: chama a API REST em /api. Nunca fala com o MCP nem com o banco.'
+        style {
+          color sky
+        }
       }
     }
 
@@ -161,7 +201,13 @@ model {
 
   // Relacionamentos
   dev -> hub_system.portal 'edita e envia SKILL.md ou .zip'
-  hub_system.portal -> hub_system.hub.api 'REST /api'
+  hub_system.portal.shell -> hub_system.portal.skillsList 'abre'
+  hub_system.portal.shell -> hub_system.portal.uploadForm 'abre'
+  hub_system.portal.skillsList -> hub_system.portal.skillDetail 'leva ao detalhe'
+  hub_system.portal.skillsList -> hub_system.portal.apiClient 'lista skills'
+  hub_system.portal.uploadForm -> hub_system.portal.apiClient 'envia o arquivo e a versão'
+  hub_system.portal.skillDetail -> hub_system.portal.apiClient 'consulta, promove e deprecia'
+  hub_system.portal.apiClient -> hub_system.hub.api 'REST /api'
   claude -> hub_system.hub.mcp 'MCP /mcp (Streamable HTTP)'
 
   hub_system.hub.api -> hub_system.hub.service 'chama'
@@ -199,6 +245,12 @@ views {
     include *
   }
 
+  view portal of hub_system.portal {
+    title 'Telas do portal'
+    include *
+    include hub_system.hub.api
+  }
+
   view layers of hub_system.hub {
     title 'Camadas do hub e ponto de troca do BlobStore'
     include *
@@ -208,8 +260,9 @@ views {
 
   dynamic view upload {
     title 'Fluxo: upload de uma skill'
-    dev -> hub_system.portal 'arrasta o SKILL.md ou .zip'
-    hub_system.portal -> hub_system.hub.api 'POST /api/skills/upload'
+    dev -> hub_system.portal.uploadForm 'arrasta o SKILL.md ou .zip'
+    hub_system.portal.uploadForm -> hub_system.portal.apiClient 'envia arquivo e versão'
+    hub_system.portal.apiClient -> hub_system.hub.api 'POST /api/skills/upload'
     hub_system.hub.api -> hub_system.hub.service 'valida e cria a versão como draft'
     hub_system.hub.service -> hub_system.hub.blobStore 'put de cada arquivo'
     hub_system.hub.blobStore -> hub_system.hub.pgStore 'delega'

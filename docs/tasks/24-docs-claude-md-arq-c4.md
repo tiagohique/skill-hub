@@ -23,8 +23,8 @@ docker run --rm -v "$PWD/docs:/docs" -w /docs node:22-alpine npx -y likec4 valid
 ```
 
 ## Critérios de aceite
-- [ ] `arq.c4` válido
-- [ ] CLAUDE.md coerente com o código
+- [x] `arq.c4` válido
+- [x] CLAUDE.md coerente com o código
 
 ## Notas de execução
-—
+`CLAUDE.md`: Stack (Tailwind + lucide-react), seção Portal reescrita (telas, responsivo, acesso pelo celular e aviso de que a POC não tem login), estrutura de pastas (`components`, `pages`, `tests`, `scripts`, `entrypoint.sh`), "Como trabalhar" (tudo em contêiner e comandos de teste), definição de pronto (itens do portal; os itens da POC, já verificados na Tarefa 18, foram marcados). Aproveitei para corrigir o que tinha ficado desatualizado desde as tarefas anteriores: resultado da verificação do `mcp` 2.3.0, canal beta e ator da auditoria no MCP, rota `/api/health`, `retired` só no serviço, `MIGRATION_DATABASE_URL` e demais variáveis, grant de `channels`, e o esclarecimento de que "busca de texto" fora do escopo é no conteúdo das skills (a lista filtra por nome e domínio). `arq.c4`: o `Portal` ganhou 5 componentes (Layout e navegação, Lista de skills, Envio de skill, Detalhe da skill, Cliente da API), todos saindo do hub só pelo `Cliente da API` → `FastAPI`; nova view `portal` ("Telas do portal"); a view dinâmica de upload passa pelo `Envio de skill`; ator `dev` e descrição do portal citam celular, rede local e ausência de login. `likec4 validate` → válido.

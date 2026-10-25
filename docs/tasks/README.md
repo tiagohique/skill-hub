@@ -28,4 +28,4 @@ Status: `pendente` · `em andamento` · `concluída`. Atualize no mesmo commit d
 | 21 | [Portal: lista com busca e filtro](21-portal-skills-list.md) | facelift | 20 | concluída |
 | 22 | [Portal: upload redesenhado](22-portal-upload.md) | facelift | 20, 19 | concluída |
 | 23 | [Portal: detalhe e verificação no celular](23-portal-detail-mobile.md) | facelift | 20, 21 | concluída |
-| 24 | [CLAUDE.md e arq.c4](24-docs-claude-md-arq-c4.md) | facelift | 20 a 23 | pendente |
+| 24 | [CLAUDE.md e arq.c4](24-docs-claude-md-arq-c4.md) | facelift | 20 a 23 | concluída |

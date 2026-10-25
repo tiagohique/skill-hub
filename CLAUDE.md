@@ -12,6 +12,7 @@ Se algo aqui contradisser o desenho, pare e pergunte.
 - Entregue em passos pequenos: um módulo por vez, com testes.
 - Decisão fora destas regras: pergunte antes de implementar.
 - Não adicione dependências, serviços ou funcionalidades que não estejam aqui.
+- Tudo roda em contêiner (banco, hub, portal, testes, lint, build e scripts); nada da aplicação roda direto no Mac. Testes do hub: `docker compose run --rm hub-test pytest`. Testes e build do portal: `docker compose run --rm portal npm test` e `npm run build`.
 - Código e identificadores em inglês. Textos de interface e documentação em português do Brasil.
 
 ## Arquitetura como código
@@ -40,13 +41,15 @@ Provar valor de ponta a ponta:
 
 | Camada | Tecnologia |
 |---|---|
-| Portal | React + Vite (TypeScript) |
+| Portal | React + Vite (TypeScript) + Tailwind CSS + lucide-react (ícones) |
 | Hub | Python 3.12, FastAPI |
 | MCP | SDK oficial `mcp` (Python). **Não usar FastMCP.** |
 | Banco e blobs | PostgreSQL (imagem oficial `postgres`) |
 | Acesso a dados | SQLAlchemy 2 (async) + asyncpg + Alembic |
 | Infra local | Docker Compose |
 | Qualidade | pytest, ruff, mypy |
+
+Tailwind CSS (com `@tailwindcss/vite`) e `lucide-react` foram aprovados em 2026-10-25 para o novo visual do portal. Shadcn UI e Radix não entram (o protótipo aprovado não usa).
 
 Por que não FastMCP: o provider de skills dele lê só de pastas e diverge da extensão oficial de Skills (SEP-2640). O SDK oficial segue o padrão que será o destino final.
 
@@ -127,6 +130,7 @@ O usuário do banco usado pelo hub tem permissões mínimas:
 
 - `blobs`, `skill_version_files`, `audit_events`: apenas `INSERT` e `SELECT`.
 - `skill_versions`: `INSERT`, `SELECT` e `UPDATE (status)` apenas na coluna `status`.
+- `channels`: `INSERT`, `SELECT` e `UPDATE (version_id)` (promoção e depreciação).
 - Nenhum `DELETE` em lugar nenhum.
 - Migrações rodam com outro usuário (dono do esquema).
 
@@ -159,7 +163,8 @@ draft --> beta --> stable --> deprecated --> retired
 - Transporte: Streamable HTTP em `/mcp`.
 - Padrão: extensão de Skills (SEP-2640). Métodos `skills/list`, `skills/get` e `resources/read`, URIs `skill://<name>/SKILL.md` e `skill://<name>/<path>`.
 - Cada skill é listada com a lista de arquivos, o digest SHA-256 e o tamanho de cada um. **Nunca servir como `"dynamic"`.**
-- **Primeira tarefa do MCP:** verificar na versão instalada do pacote `mcp` se a extensão já existe (o pull request de referência é `python-sdk#3485`; não confirmei que foi publicado). Se não existir, registrar `skills/list` e `skills/get` manualmente, seguindo a especificação.
+- **Resultado da verificação (Tarefa 11):** o `mcp` 2.3.0 (o mais novo no PyPI, fixado em `mcp>=2.3,<3`) ainda não traz a extensão; o PR `python-sdk#3485` foi mesclado na `main` em 2026-10-11, mas não saiu em release. Por isso `skills/list` e `skills/get` são registrados à mão com o `Server` de baixo nível (`add_request_handler`), com a capability `io.modelcontextprotocol/skills`. Detalhes em `docs/decisions/mcp-skills-extension.md`. Quando o SDK publicar a extensão, troca só o adaptador `mcp/`.
+- O canal `beta` é pedido de forma explícita: parâmetro `channel` em `skills/list` e `skills/get`, e `?channel=beta` na URI de `resources/read`. O ator da auditoria é o `clientInfo` do cliente MCP (ou `anonymous`).
 - Fallback para clientes sem a extensão: tools `list_skills` e `get_skill`, lendo da mesma `SkillService`.
 - Não implementar sincronização para `~/.claude/skills`. A especificação pede que skills de origem MCP fiquem fora dos caminhos de skills locais.
 
@@ -167,6 +172,7 @@ draft --> beta --> stable --> deprecated --> retired
 
 | Método | Rota | Função |
 |---|---|---|
+| GET | `/api/health` | Saúde do hub (healthcheck do Compose) |
 | POST | `/api/skills/upload` | Upload (`multipart`) de `.md` ou `.zip` com a versão |
 | GET | `/api/skills` | Lista skills e canais |
 | GET | `/api/skills/{name}` | Detalhe e versões |
@@ -174,17 +180,21 @@ draft --> beta --> stable --> deprecated --> retired
 | POST | `/api/skills/{name}/versions/{version}/promote` | Corpo `{ "to": "beta" ou "stable" }` |
 | POST | `/api/skills/{name}/versions/{version}/deprecate` | Depreciar |
 
-Erros em JSON com `code` e `message`. Upload que repete versão: 409.
+Erros em JSON com `code` e `message`. Upload que repete versão: 409. A transição `deprecated→retired` existe só no `SkillService` (sem rota REST).
 
 ## Portal (React)
 
-Três telas:
+Visual dark nativo (zinc + indigo), com Tailwind CSS e ícones lucide-react, fiel ao protótipo aprovado em 2026-10-25. Rotas por hash (`#/`, `#/skills/<nome>`, `#/upload`). Três telas:
 
-1. **Skills:** lista com nome, domínio, versão `stable` e versão `beta`.
-2. **Detalhe:** versões, status, arquivos com hash, botões Promover e Depreciar.
-3. **Upload:** arrastar e soltar `.md` ou `.zip`, campo de versão semver.
+1. **Skills:** cabeçalho com botão "Enviar Skill", busca por nome e filtro por domínio (no cliente), tabela no desktop e cards no celular, com badges de versão `stable` e `beta`. Clicar leva ao detalhe.
+2. **Detalhe:** versões (tabela ou cards), status em badges, arquivos com hash (copiar ao clicar), botões Promover e Depreciar.
+3. **Upload:** card centralizado com área de arrastar e soltar (`.md` ou `.zip`) e campo de versão semver. Versão inválida mostra o que corrigir e oferece a correção (`explainVersion`, ex.: "Usar 1.0.0"); erros reais da API (409, 413, 422) aparecem no topo do card; spinner durante o envio.
 
-Sem login na POC. Interface simples e limpa, em português.
+Responsivo: menu hambúrguer e cards abaixo de `md`; sem rolagem horizontal em 375 px.
+
+Acesso pelo celular: `http://<IP do Mac>:5173`, na mesma rede (o Vite escuta em `0.0.0.0` e o portal faz proxy de `/api`, então o aparelho só precisa da porta 5173). **A POC não tem login: quem estiver na mesma rede pode ver e enviar skills.**
+
+Sem login na POC. Interface em português.
 
 ## Estrutura de pastas
 
@@ -197,6 +207,7 @@ skills-hub/
   .env.example
   hub/
     Dockerfile
+    entrypoint.sh   # migra e sobe o hub
     pyproject.toml
     alembic/
     src/hub/
@@ -213,12 +224,17 @@ skills-hub/
   portal/
     Dockerfile
     src/
+      components/   # Layout (navbar) e Badge
+      pages/        # SkillsPage, SkillDetailPage, UploadPage
+      api.ts types.ts skills.ts version.ts
+    tests/          # node:test (skills e version)
   examples/skills/  # 2 skills de exemplo para a demonstração
+  scripts/          # demo.py e verify_mcp.py (rodam no contêiner hub-test)
 ```
 
 ## Variáveis de ambiente
 
-`DATABASE_URL`, `BLOB_BACKEND` (`postgres`), `MAX_FILE_BYTES`, `MAX_BUNDLE_BYTES`, `MAX_FILES`. Todas documentadas em `.env.example`. Nenhum segredo no repositório.
+`DATABASE_URL` (usuário da aplicação), `MIGRATION_DATABASE_URL` (dono do esquema, usado nas migrações), `BLOB_BACKEND` (`postgres`), `MAX_FILE_BYTES`, `MAX_BUNDLE_BYTES`, `MAX_FILES`, mais as variáveis do Postgres (`POSTGRES_*`, `APP_DB_*`). Todas documentadas em `.env.example`. Nenhum segredo no repositório.
 
 ## Compose
 
@@ -229,7 +245,7 @@ skills-hub/
 
 ## Fora do escopo da POC
 
-Login e SSO, adaptadores S3 e Azure, pipeline de CI com scan, evals e assinatura, Terraform, busca de texto, diff entre versões e multi-tenant.
+Login e SSO, adaptadores S3 e Azure, pipeline de CI com scan, evals e assinatura, Terraform, busca de texto no conteúdo das skills (a lista do portal só filtra por nome e domínio), diff entre versões e multi-tenant.
 
 ## Evolução prevista (não implementar)
 
@@ -247,13 +263,15 @@ Só a troca do adaptador do `BlobStore` deve exigir mudança de código no hub.
 
 ## Definição de pronto da POC
 
-- [ ] `docker compose up --build` sobe os três serviços sem passos manuais.
-- [ ] Upload de `.md` e de `.zip` funciona, com validação e erros claros.
-- [ ] Versão repetida devolve 409; nada é sobrescrito.
-- [ ] Promoção `draft→beta→stable` funciona e gera auditoria.
-- [ ] Claude Code conecta em `/mcp` e lê uma skill `stable`.
-- [ ] Hash conferido ao ler; arquivo adulterado no banco gera erro de integridade.
-- [ ] O usuário da aplicação não consegue `UPDATE` em `blobs` nem `DELETE` (teste de integração).
-- [ ] Testes de contrato do `BlobStore` passam.
-- [ ] Duas skills de exemplo (HTML e back-end) publicadas e consumidas.
-- [ ] `docs/arq.c4` atualizado e válido (`npx likec4 validate docs`).
+- [x] `docker compose up --build` sobe os três serviços sem passos manuais.
+- [x] Upload de `.md` e de `.zip` funciona, com validação e erros claros.
+- [x] Versão repetida devolve 409; nada é sobrescrito.
+- [x] Promoção `draft→beta→stable` funciona e gera auditoria.
+- [x] Claude Code conecta em `/mcp` e lê uma skill `stable`.
+- [x] Hash conferido ao ler; arquivo adulterado no banco gera erro de integridade.
+- [x] O usuário da aplicação não consegue `UPDATE` em `blobs` nem `DELETE` (teste de integração).
+- [x] Testes de contrato do `BlobStore` passam.
+- [x] Duas skills de exemplo (HTML e back-end) publicadas e consumidas.
+- [x] `docs/arq.c4` atualizado e válido (`npx likec4 validate docs`).
+- [x] Portal no novo visual, responsivo em 375 px (sem rolagem horizontal) e acessível pelo celular na rede local.
+- [x] Lista com busca e filtro por domínio; testes do portal (`npm test`) passam.
