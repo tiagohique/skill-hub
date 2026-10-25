@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+from datetime import datetime
 from enum import StrEnum
+from typing import Any
 
 from hub.domain.errors import InvalidTransitionError
 
@@ -54,3 +56,43 @@ class FileEntry:
     path: str
     sha256: str
     size: int
+
+
+@dataclass(frozen=True)
+class SkillSummary:
+    name: str
+    domain: str
+    owner: str
+    stable: str | None
+    beta: str | None
+
+
+@dataclass(frozen=True)
+class VersionSummary:
+    version: str
+    status: Status
+    bundle_sha256: str
+    created_by: str
+    created_at: datetime
+
+
+@dataclass(frozen=True)
+class SkillDetail:
+    name: str
+    domain: str
+    owner: str
+    description: str
+    channels: dict[Channel, str]
+    versions: list[VersionSummary]
+
+
+@dataclass(frozen=True)
+class VersionDetail:
+    name: str
+    version: str
+    status: Status
+    frontmatter: dict[str, Any]
+    bundle_sha256: str
+    created_by: str
+    created_at: datetime
+    files: list[FileEntry]

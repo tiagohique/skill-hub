@@ -138,12 +138,11 @@ class CatalogRepository:
     async def list_files(self, version_id: uuid.UUID) -> list[FileEntry]:
         rows = (
             await self._session.execute(
-                select(skill_version_files)
-                .where(skill_version_files.c.version_id == version_id)
-                .order_by(skill_version_files.c.path)
+                select(skill_version_files).where(skill_version_files.c.version_id == version_id)
             )
         ).all()
-        return [FileEntry(r.path, r.sha256, r.size) for r in rows]
+        # Ordem binária por path, a mesma do bundle_sha256 (a collation do banco difere).
+        return sorted((FileEntry(r.path, r.sha256, r.size) for r in rows), key=lambda e: e.path)
 
     async def set_status(self, version_id: uuid.UUID, status: Status) -> None:
         await self._session.execute(

@@ -23,8 +23,8 @@ docker compose run --rm hub-test pytest tests/integration/test_skill_service_upl
 ```
 
 ## Critérios de aceite
-- [ ] Review Focus 3 coberto
-- [ ] Serviço não executa SQL direto
+- [x] Review Focus 3 coberto
+- [x] Serviço não executa SQL direto
 
 ## Notas de execução
-—
+`list_files` ordena em Python (binário), não no SQL: a collation do Postgres ordena `ref/x` antes de `SKILL.md`, divergindo do `bundle_sha256`. Teste extra: upload inválido não grava skill nem blob.
