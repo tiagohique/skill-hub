@@ -1,10 +1,7 @@
 import { useRef, useState } from "react";
 import type { DragEvent, FormEvent } from "react";
 import { uploadSkill } from "../api";
-
-// Mesma regra do hub (semver 2.0.0, expressão oficial de semver.org).
-const SEMVER =
-  /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
+import { explainVersion } from "../version";
 
 const ACCEPTED = /\.(md|zip)$/i;
 
@@ -16,7 +13,8 @@ export function UploadPage() {
   const [busy, setBusy] = useState(false);
   const input = useRef<HTMLInputElement>(null);
 
-  const versionValid = SEMVER.test(version);
+  const check = explainVersion(version);
+  const versionValid = check.valid;
   const canSubmit = file !== null && versionValid && !busy;
 
   function choose(candidate: File | undefined) {
@@ -90,12 +88,26 @@ export function UploadPage() {
             type="text"
             value={version}
             onChange={(e) => setVersion(e.target.value.trim())}
-            placeholder="ex.: 1.0.0"
+            placeholder="1.0.0"
             aria-invalid={version !== "" && !versionValid}
           />
         </label>
-        {version !== "" && !versionValid && (
-          <p className="muted">Use o formato maior.menor.patch, por exemplo 1.0.0.</p>
+        <p className="muted hint">
+          Exemplo: <code>1.0.0</code> (três números separados por pontos, sem ponto no fim).
+        </p>
+        {!check.valid && version !== "" && (
+          <p role="status" className="field-error">
+            {check.message}{" "}
+            {check.suggestion && (
+              <button
+                type="button"
+                className="link"
+                onClick={() => setVersion(check.suggestion ?? "")}
+              >
+                Usar {check.suggestion}
+              </button>
+            )}
+          </p>
         )}
 
         {error && (
@@ -107,6 +119,13 @@ export function UploadPage() {
         <button type="submit" disabled={!canSubmit}>
           {busy ? "Enviando…" : "Enviar"}
         </button>
+        {!canSubmit && !busy && (
+          <p className="muted">
+            {file === null
+              ? "Escolha um arquivo .md ou .zip para enviar."
+              : "Informe uma versão válida para enviar."}
+          </p>
+        )}
       </form>
     </section>
   );

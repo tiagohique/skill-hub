@@ -251,3 +251,15 @@ button.link {
 form button[type="submit"] {
   margin-top: 1rem;
 }
+
+.hint code {
+  padding: 0.05rem 0.35rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.field-error {
+  margin: 0.25rem 0 0.5rem;
+  color: var(--danger);
+}
