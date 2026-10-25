@@ -24,8 +24,8 @@ docker compose run --rm --no-deps portal npm run build
 ```
 
 ## Critérios de aceite
-- [ ] Estados do dropzone fiéis ao protótipo
-- [ ] `1.0.0.` mostra "Usar 1.0.0"
+- [x] Estados do dropzone fiéis ao protótipo
+- [x] `1.0.0.` mostra "Usar 1.0.0"
 
 ## Notas de execução
-—
+Verificado no navegador sem enviar nada: dropzone com estados (arrastando = borda indigo sólida e fundo indigo; formato inválido = banner "Formato inválido. Use apenas .zip ou .md."; arquivo escolhido = nome, KB e "Trocar arquivo"); `1.0.0.` mostra "Remova o ponto final…" com "Usar 1.0.0", e o clique corrige e habilita o botão; sem rolagem horizontal em 375 px. Escolhas minhas: helper em zinc-400 (como na spec; o protótipo usava zinc-500), dropzone acessível por teclado (`role="button"`, Enter/Espaço), `min-h-40` (160 px), botão e mensagem do motivo na mesma linha no desktop. O botão com spinner e o envio real não foram acionados para não criar skills no hub; o usuário testa pela tela.
