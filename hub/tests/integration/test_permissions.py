@@ -57,7 +57,16 @@ async def test_app_cannot_update_blobs(app_engine: AsyncEngine) -> None:
 
 @pytest.mark.parametrize(
     "table",
-    ["skills", "skill_versions", "skill_version_files", "channels", "blobs", "audit_events"],
+    [
+        "skills",
+        "skill_versions",
+        "skill_version_files",
+        "channels",
+        "blobs",
+        "audit_events",
+        "users",
+        "auth_sessions",
+    ],
 )
 async def test_app_cannot_delete_from_any_table(app_engine: AsyncEngine, table: str) -> None:
     await _denied(app_engine, f"DELETE FROM {table}")

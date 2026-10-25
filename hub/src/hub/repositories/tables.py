@@ -1,4 +1,4 @@
-"""Definição das tabelas (SQLAlchemy Core). Espelha a migração 0001."""
+"""Definição das tabelas (SQLAlchemy Core). Espelha as migrações."""
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB
@@ -71,4 +71,25 @@ audit_events = sa.Table(
     sa.Column("skill", sa.Text, nullable=False),
     sa.Column("version", sa.Text, nullable=True),
     sa.Column("at", sa.DateTime(timezone=True), nullable=False, server_default=_now),
+)
+
+users = sa.Table(
+    "users",
+    metadata,
+    sa.Column("id", sa.Uuid, primary_key=True),
+    sa.Column("username", sa.Text, nullable=False, unique=True),
+    sa.Column("password_hash", sa.Text, nullable=False),
+    sa.Column("theme", sa.Text, nullable=False, server_default="dark"),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False, server_default=_now),
+    sa.CheckConstraint("theme IN ('light','dark')", name="ck_users_theme"),
+)
+
+auth_sessions = sa.Table(
+    "auth_sessions",
+    metadata,
+    sa.Column("token_sha256", sa.Text, primary_key=True),
+    sa.Column("user_id", sa.Uuid, sa.ForeignKey("users.id"), nullable=False),
+    sa.Column("created_at", sa.DateTime(timezone=True), nullable=False, server_default=_now),
+    sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
+    sa.Column("revoked_at", sa.DateTime(timezone=True), nullable=True),
 )

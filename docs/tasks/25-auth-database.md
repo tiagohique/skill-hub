@@ -24,7 +24,7 @@ docker compose run --rm --no-deps portal npm test
 ```
 
 ## Critérios de aceite
-- [ ] Testes e verificação da tarefa passam
+- [x] Testes e verificação da tarefa passam
 
 ## Notas de execução
-(a preencher)
+Migração `0002` com `users`, `auth_sessions` e o seed `admin/admin` (hash scrypt via `hub/security.py`); grants sem DELETE. `clean_db` mantém o admin e zera sessões. 200 testes passando, ruff e mypy limpos.

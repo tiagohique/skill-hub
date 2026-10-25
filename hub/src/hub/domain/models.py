@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from enum import StrEnum
@@ -106,3 +107,10 @@ class PublishedSkill:
     version: str
     bundle_sha256: str
     files: list[FileEntry]
+
+
+@dataclass(frozen=True)
+class User:
+    id: uuid.UUID
+    username: str
+    theme: str

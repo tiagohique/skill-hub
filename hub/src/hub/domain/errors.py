@@ -33,3 +33,7 @@ class NotFoundError(HubError):
 
 class IntegrityError(HubError):
     code = "integrity_error"
+
+
+class UnauthorizedError(HubError):
+    code = "unauthorized"

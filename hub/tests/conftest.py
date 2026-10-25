@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from alembic import command
 
-TABLES = "audit_events, channels, skill_version_files, skill_versions, blobs, skills"
+TABLES = "auth_sessions, audit_events, channels, skill_version_files, skill_versions, blobs, skills"
 
 
 @pytest_asyncio.fixture
@@ -49,3 +49,6 @@ async def clean_db(migrated: None, owner_engine: AsyncEngine) -> None:
     """Esvazia as tabelas (como dono) antes de cada teste que usa o banco."""
     async with owner_engine.begin() as conn:
         await conn.execute(text(f"TRUNCATE {TABLES} CASCADE"))
+        # users não é esvaziada: o admin do seed da migração precisa continuar lá.
+        await conn.execute(text("DELETE FROM users WHERE username <> 'admin'"))
+        await conn.execute(text("UPDATE users SET theme = 'dark'"))
