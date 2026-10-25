@@ -1,0 +1,226 @@
+// Skills Hub (POC v3): Postgres + camada BlobStore
+// Fonte da verdade da arquitetura. Complementa o CLAUDE.md do projeto.
+
+specification {
+  element actor {
+    notation 'Pessoa ou cliente externo'
+    style {
+      shape person
+      color sky
+    }
+  }
+  element system {
+    notation 'Sistema'
+    style {
+      color indigo
+    }
+  }
+  element container {
+    notation 'Contêiner Docker'
+    style {
+      border dashed
+    }
+  }
+  element component {
+    notation 'Componente de código'
+  }
+  element table {
+    notation 'Tabela no PostgreSQL'
+    style {
+      shape storage
+      color green
+    }
+  }
+
+  tag future
+  tag governance
+  tag swap_point
+
+  deploymentNode machine {
+    notation 'Máquina'
+    style {
+      color slate
+    }
+  }
+  deploymentNode compose {
+    notation 'Docker Compose'
+    style {
+      color sky
+    }
+  }
+}
+
+model {
+  dev = actor 'Desenvolvedor' {
+    description 'Edita o SKILL.md na própria máquina e envia pelo portal.'
+  }
+
+  claude = actor 'Claude Code' {
+    description 'Cliente MCP que lê as skills aprovadas.'
+    style {
+      color green
+    }
+  }
+
+  hub_system = system 'Skills Hub' {
+    description 'Repositório central e versionado de skills, servido por MCP.'
+
+    portal = container 'Portal' {
+      technology 'React + Vite (porta 5173)'
+      description 'Upload do SKILL.md ou .zip, listagem, detalhe e promoção de versões. Fala só com a API REST.'
+      style {
+        color sky
+        shape browser
+      }
+    }
+
+    hub = container 'Hub' {
+      technology 'Python 3.12 (porta 8000)'
+      description 'API REST em /api e servidor MCP em /mcp.'
+      style {
+        color indigo
+      }
+
+      api = component 'FastAPI' {
+        technology 'FastAPI'
+        description 'Upload, validação e rotas do portal. Adaptador fino, sem regra de negócio.'
+        style {
+          color indigo
+        }
+      }
+
+      mcp = component 'Servidor MCP' {
+        technology 'SDK oficial mcp (Streamable HTTP)'
+        description 'skills/list, skills/get e resources/read. Adaptador fino, sem regra de negócio.'
+        style {
+          color indigo
+        }
+      }
+
+      service = component 'SkillService' {
+        #governance
+        description 'Regras de negócio: draft, beta, stable. Versão imutável. SHA-256 por arquivo e por pacote. Única porta de entrada para dados e blobs.'
+        style {
+          color amber
+        }
+      }
+
+      blobStore = component 'BlobStore' {
+        #swap_point
+        technology 'Interface (Protocol)'
+        description 'Ponto de troca. put devolve sha256. get confere o hash. exists.'
+        style {
+          color amber
+          border solid
+        }
+      }
+
+      pgStore = component 'PostgresBlobStore' {
+        description 'Implementação usada na POC. Grava na tabela blobs.'
+        style {
+          color indigo
+        }
+      }
+
+      s3Store = component 'S3BlobStore ou AzureBlobStore' {
+        #future
+        description 'Implementação futura em S3 ou Azure Blob, imutável. Não implementar na POC.'
+        style {
+          color gray
+          border dashed
+          opacity 50%
+        }
+      }
+    }
+
+    db = container 'PostgreSQL' {
+      technology 'Imagem oficial postgres (porta 5432, volume pgdata)'
+      description 'Catálogo e blobs. O usuário da aplicação tem permissões mínimas.'
+      style {
+        color green
+        shape storage
+      }
+
+      blobs = table 'Tabela blobs' {
+        description 'sha256 (chave) e conteúdo em bytea. Só inserção.'
+      }
+
+      catalog = table 'Catálogo' {
+        description 'skills, versões, arquivos, canais e auditoria.'
+      }
+    }
+  }
+
+  // Relacionamentos
+  dev -> hub_system.portal 'edita e envia SKILL.md ou .zip'
+  hub_system.portal -> hub_system.hub.api 'REST /api'
+  claude -> hub_system.hub.mcp 'MCP /mcp (Streamable HTTP)'
+
+  hub_system.hub.api -> hub_system.hub.service 'chama'
+  hub_system.hub.mcp -> hub_system.hub.service 'chama'
+  hub_system.hub.service -> hub_system.hub.blobStore 'put e get de conteúdo'
+  hub_system.hub.blobStore -> hub_system.hub.pgStore 'implementada por (POC)'
+  hub_system.hub.blobStore -> hub_system.hub.s3Store 'implementada por (futuro)' {
+    style {
+      line dashed
+    }
+  }
+  hub_system.hub.pgStore -> hub_system.db.blobs 'SQL'
+  hub_system.hub.service -> hub_system.db.catalog 'SQL via repositories'
+}
+
+deployment {
+  machine mac 'Seu Mac' {
+    compose stack 'Docker Compose' {
+      instanceOf hub_system.portal
+      instanceOf hub_system.hub
+      instanceOf hub_system.db
+    }
+  }
+}
+
+views {
+  view index {
+    title 'Visão geral'
+    include *
+  }
+
+  view containers of hub_system {
+    title 'Contêineres da POC'
+    include *
+  }
+
+  view layers of hub_system.hub {
+    title 'Camadas do hub e ponto de troca do BlobStore'
+    include *
+    include hub_system.db.blobs, hub_system.db.catalog
+    exclude hub_system.db
+  }
+
+  dynamic view upload {
+    title 'Fluxo: upload de uma skill'
+    dev -> hub_system.portal 'arrasta o SKILL.md ou .zip'
+    hub_system.portal -> hub_system.hub.api 'POST /api/skills/upload'
+    hub_system.hub.api -> hub_system.hub.service 'valida e cria a versão como draft'
+    hub_system.hub.service -> hub_system.hub.blobStore 'put de cada arquivo'
+    hub_system.hub.blobStore -> hub_system.hub.pgStore 'delega'
+    hub_system.hub.pgStore -> hub_system.db.blobs 'INSERT por sha256'
+    hub_system.hub.service -> hub_system.db.catalog 'grava versão e auditoria'
+  }
+
+  dynamic view consume {
+    title 'Fluxo: Claude Code lê uma skill stable'
+    claude -> hub_system.hub.mcp 'skills/list e skills/get'
+    hub_system.hub.mcp -> hub_system.hub.service 'busca versão stable'
+    hub_system.hub.service -> hub_system.db.catalog 'lê versão e hashes'
+    hub_system.hub.service -> hub_system.hub.blobStore 'get de cada arquivo'
+    hub_system.hub.blobStore -> hub_system.hub.pgStore 'delega'
+    hub_system.hub.pgStore -> hub_system.db.blobs 'SELECT e confere o hash'
+    hub_system.hub.mcp -> claude 'resources/read com digests'
+  }
+
+  deployment view local {
+    title 'Implantação local (Docker Compose no Mac)'
+    include mac, mac.stack, mac.stack.*
+  }
+}
