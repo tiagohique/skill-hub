@@ -25,8 +25,8 @@ docker compose run --rm hub-test pytest tests/integration/test_repositories.py -
 ```
 
 ## Critérios de aceite
-- [ ] Funciona com o usuário de permissões mínimas
-- [ ] Nenhum commit dentro dos repositórios
+- [x] Funciona com o usuário de permissões mínimas
+- [x] Nenhum commit dentro dos repositórios
 
 ## Notas de execução
-—
+Acrescentado `CatalogRepository.list_channels() -> dict[UUID, dict[Channel, str]]` (evita N+1 na listagem de skills da Tarefa 08). `insert_version` usa savepoint (`begin_nested`) para a sessão continuar utilizável após o conflito.
