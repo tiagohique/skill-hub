@@ -12,8 +12,9 @@ CMD ["pytest"]
 
 # Imagem de execução: só dependências de runtime, usuário não root.
 FROM base AS runtime
-COPY pyproject.toml ./
+COPY pyproject.toml alembic.ini ./
 COPY src ./src
+COPY alembic ./alembic
 RUN pip install . && useradd --create-home --uid 10001 hub
 USER hub
 EXPOSE 8000

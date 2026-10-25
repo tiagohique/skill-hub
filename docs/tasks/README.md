@@ -9,7 +9,7 @@ Status: `pendente` · `em andamento` · `concluída`. Atualize no mesmo commit d
 | 02 | [PostgreSQL com papéis separados](02-postgres-roles.md) | 0 | 01 | concluída |
 | 03 | [Domínio: erros, ciclo de vida, semver, hash](03-domain.md) | 1 | 01 | concluída |
 | 04 | [Validação de upload](04-upload-validation.md) | 1 | 03 | concluída |
-| 05 | [Esquema, migração e grants](05-schema-migration.md) | 2 | 02 | pendente |
+| 05 | [Esquema, migração e grants](05-schema-migration.md) | 2 | 02 | concluída |
 | 06 | [BlobStore e testes de contrato](06-blobstore.md) | 2 | 03, 05 | pendente |
 | 07 | [Repositórios](07-repositories.md) | 2 | 03, 05 | pendente |
 | 08 | [SkillService: upload e consultas](08-service-upload.md) | 3 | 04, 06, 07 | pendente |

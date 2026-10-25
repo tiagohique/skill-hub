@@ -24,8 +24,8 @@ docker compose run --rm hub-test alembic upgrade head
 ```
 
 ## Critérios de aceite
-- [ ] UPDATE em `blobs` e DELETE em qualquer tabela falham para o app (item da definição de pronto)
-- [ ] Migração sobe e desce limpa
+- [x] UPDATE em `blobs` e DELETE em qualquer tabela falham para o app (item da definição de pronto)
+- [x] Migração sobe e desce limpa
 
 ## Notas de execução
-—
+`migrated` é fixture síncrona (o `env.py` usa `asyncio.run`); `clean_db` é opt-in e ligado por autouse só em `tests/integration/conftest.py`, para os testes unitários não exigirem banco. Extras: testes de TRUNCATE negado, `bundle_sha256` imutável e CHECK de status. O `Dockerfile` (alvo `runtime`) agora copia `alembic.ini` e `alembic/`.
