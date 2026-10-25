@@ -27,8 +27,8 @@ docker compose run --rm hub-test pytest tests/unit/test_validation.py -v
 ```
 
 ## Critérios de aceite
-- [ ] Todos os testes verdes; ruff e mypy limpos
-- [ ] Review Focus 1, 2 e 4 cobertos por teste
+- [x] Todos os testes verdes; ruff e mypy limpos
+- [x] Review Focus 1, 2 e 4 cobertos por teste
 
 ## Notas de execução
-—
+Além da spec: frontmatter com aliases YAML é rejeitado (proteção contra expansão exponencial) e valores YAML (datas) são convertidos para tipos JSON seguros antes de ir para o `jsonb`. O tamanho declarado no zip é só pré-filtro; o limite real é medido na leitura em blocos.
