@@ -6,6 +6,7 @@ import { domainsOf, filterSkills } from "../skills";
 import type { SkillSummary } from "../types";
 
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+const STATUS_FILTERS = ["stable", "beta", "deprecated"] as const;
 const detailHref = (name: string) => `#/skills/${encodeURIComponent(name)}`;
 
 export function SkillsPage() {
@@ -13,6 +14,7 @@ export function SkillsPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [domainFilter, setDomainFilter] = useState("todos");
+  const [statusFilter, setStatusFilter] = useState("todos");
 
   useEffect(() => {
     listSkills()
@@ -20,7 +22,7 @@ export function SkillsPage() {
       .catch((e: Error) => setError(e.message));
   }, []);
 
-  const filtered = skills ? filterSkills(skills, search, domainFilter) : [];
+  const filtered = skills ? filterSkills(skills, search, domainFilter, statusFilter) : [];
   const emptyText = skills?.length === 0 ? "Nenhuma skill publicada ainda." : "Nenhuma skill encontrada.";
 
   return (
@@ -67,7 +69,8 @@ export function SkillsPage() {
                 className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-shadow placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
               />
             </div>
-            <div className="relative sm:w-56">
+            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative sm:w-48">
               <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
               <select
                 aria-label="Filtrar por domínio"
@@ -83,6 +86,23 @@ export function SkillsPage() {
                 ))}
               </select>
             </div>
+            <div className="relative sm:w-48">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+              <select
+                aria-label="Filtrar por status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-lg pl-10 pr-8 py-2 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-shadow"
+              >
+                <option value="todos">Todos os status</option>
+                {STATUS_FILTERS.map((st) => (
+                  <option key={st} value={st}>
+                    {capitalize(st)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            </div>
           </div>
 
           {/* Tabela (Desktop) */}
@@ -91,6 +111,7 @@ export function SkillsPage() {
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/80">
                   <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider w-1/2">Nome</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Domínio</th>
                   <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Stable</th>
                   <th className="px-6 py-4 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Beta</th>
@@ -117,6 +138,9 @@ export function SkillsPage() {
                       </a>
                     </td>
                     <td className="px-6 py-4">
+                      <Badge type={skill.status}>{skill.status}</Badge>
+                    </td>
+                    <td className="px-6 py-4">
                       <Badge type="domain">{skill.domain}</Badge>
                     </td>
                     <td className="px-6 py-4">
@@ -135,7 +159,7 @@ export function SkillsPage() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-zinc-500">
+                    <td colSpan={6} className="px-6 py-12 text-center text-zinc-500">
                       {emptyText}
                     </td>
                   </tr>
@@ -157,6 +181,7 @@ export function SkillsPage() {
                     <Terminal size={18} className="text-zinc-500 shrink-0" />
                     <span className="font-medium text-zinc-800 dark:text-zinc-200 break-all">{skill.name}</span>
                   </div>
+                  <Badge type={skill.status}>{skill.status}</Badge>
                 </div>
                 <div className="flex flex-wrap gap-x-6 gap-y-3 mt-4 text-sm">
                   <div>

@@ -24,7 +24,7 @@ docker compose run --rm --no-deps portal npm test
 ```
 
 ## Critérios de aceite
-- [ ] Testes e verificação da tarefa passam
+- [x] Testes e verificação da tarefa passam
 
 ## Notas de execução
-(a preencher)
+`filterSkills(skills, search, domain, status = "todos")` (testes escritos antes: 16 passando), segundo `select` (Todos os status, Stable, Beta, Deprecated) ao lado do domínio, empilhados abaixo de `sm`, coluna Status na tabela e badge de status nos cards. Verificado no navegador: filtro por deprecated lista só as skills deprecated; sem rolagem horizontal em 375 px.

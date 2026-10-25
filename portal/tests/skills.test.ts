@@ -3,10 +3,10 @@ import { test } from "node:test";
 import { domainsOf, filterSkills } from "../src/skills.ts";
 
 const SKILLS = [
-  { name: "fastapi-endpoint", domain: "backend", owner: "a", stable: "1.0.0", beta: null },
-  { name: "html-landing-page", domain: "frontend", owner: "b", stable: "1.0.0", beta: "1.1.0" },
-  { name: "Small-Team-Delegation", domain: "geral", owner: "c", stable: null, beta: null },
-  { name: "api-gateway", domain: "backend", owner: "d", stable: null, beta: "0.1.0" },
+  { name: "fastapi-endpoint", domain: "backend", owner: "a", stable: "1.0.0", beta: null, status: "stable" as const },
+  { name: "html-landing-page", domain: "frontend", owner: "b", stable: "1.0.0", beta: "1.1.0", status: "stable" as const },
+  { name: "Small-Team-Delegation", domain: "geral", owner: "c", stable: null, beta: null, status: "deprecated" as const },
+  { name: "api-gateway", domain: "backend", owner: "d", stable: null, beta: "0.1.0", status: "beta" as const },
 ];
 
 test("domainsOf: únicos e ordenados", () => {
@@ -54,4 +54,21 @@ test("filterSkills: espaços nas pontas são ignorados; só espaços não filtra
 
 test("filterSkills: sem resultado", () => {
   assert.deepEqual(filterSkills(SKILLS, "zzz", "todos"), []);
+});
+
+test("filterSkills: por status", () => {
+  const names = (status: string) => filterSkills(SKILLS, "", "todos", status).map((s) => s.name);
+  assert.deepEqual(names("stable"), ["fastapi-endpoint", "html-landing-page"]);
+  assert.deepEqual(names("beta"), ["api-gateway"]);
+  assert.deepEqual(names("deprecated"), ["Small-Team-Delegation"]);
+  assert.equal(names("todos").length, 4);
+});
+
+test("filterSkills: status sem argumento não filtra e combina com busca e domínio", () => {
+  assert.equal(filterSkills(SKILLS, "", "todos").length, 4);
+  assert.deepEqual(
+    filterSkills(SKILLS, "api", "backend", "beta").map((s) => s.name),
+    ["api-gateway"],
+  );
+  assert.deepEqual(filterSkills(SKILLS, "api", "backend", "deprecated"), []);
 });

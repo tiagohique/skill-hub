@@ -33,5 +33,5 @@ Status: `pendente` · `em andamento` · `concluída`. Atualize no mesmo commit d
 | 26 | [API de autenticação e status](26-auth-api.md) | login | 25 | concluída |
 | 27 | [Tema claro e escuro](27-theme.md) | login | 26 | concluída |
 | 28 | [Tela de login](28-login-screen.md) | login | 27 | concluída |
-| 29 | [Filtro de status](29-status-filter.md) | login | 26 | pendente |
+| 29 | [Filtro de status](29-status-filter.md) | login | 26 | concluída |
 | 30 | [CLAUDE.md e arq.c4](30-docs-login-theme.md) | login | 25 a 29 | pendente |
