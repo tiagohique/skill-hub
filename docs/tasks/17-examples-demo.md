@@ -26,9 +26,9 @@ claude mcp add --transport http skills-hub http://localhost:8000/mcp
 ```
 
 ## Critérios de aceite
-- [ ] Hash conferido em todos os arquivos
-- [ ] Blob adulterado no banco → `verify_mcp.py` reporta integridade e sai ≠ 0
-- [ ] Claude Code lê `fastapi-endpoint` pelo MCP
+- [x] Hash conferido em todos os arquivos
+- [x] Blob adulterado no banco → `verify_mcp.py` reporta integridade e sai ≠ 0
+- [ ] Claude Code lê `fastapi-endpoint` pelo MCP (passo manual do usuário: `claude mcp add`)
 
 ## Notas de execução
-—
+Verificado no Compose real: `demo.py` publica as duas skills (e é idempotente: reexecução só avisa), `verify_mcp.py` confere todos os arquivos e os hashes dos pacotes; depois de adulterar um blob como dono, ele reporta `Conteúdo adulterado`, a divergência do pacote e sai com código 1. Como `hub_app`, `UPDATE blobs` e `DELETE FROM skills` dão `permission denied`. O `initialize` por `localhost:8000/mcp` (como o Claude Code faz) responde 200. O registro no Claude Code (`claude mcp add --transport http skills-hub http://localhost:8000/mcp`) altera a configuração do usuário e fica como passo manual dele. Os testes do MCP passaram a compartilhar `tests/mcp_support.py` e a fixture `hub` em `tests/integration/conftest.py`.

@@ -1,78 +1,13 @@
-import asyncio
-import os
-from collections.abc import AsyncIterator
-from typing import Any
-
 import mcp_types as types
 import pytest
-import pytest_asyncio
-import uvicorn
-from mcp import Client
 from mcp.shared.exceptions import MCPError
-from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from hub.config import Settings
 from hub.domain.hashing import sha256_hex
 from hub.domain.models import Status
-from hub.main import create_app
 from hub.mcp.server import SkillsGetParams, SkillsListParams
-from hub.service.skill_service import SkillService
-
-
-class AnyResult(BaseModel, extra="allow"):
-    pass
-
-
-def skill_md(name: str = "my-skill", body: str = "# Corpo") -> bytes:
-    return f"---\nname: {name}\ndescription: Faz algo útil\n---\n{body}\n".encode()
-
-
-class Hub:
-    def __init__(self, url: str, service: SkillService) -> None:
-        self.url = url
-        self.service = service
-
-    def client(self) -> Client:
-        info = types.Implementation(name="test-client", version="1.2.3")
-        return Client(self.url, client_info=info)
-
-    async def publish(self, name: str = "my-skill", to: Status = Status.STABLE) -> bytes:
-        data = skill_md(name)
-        await self.service.upload(filename="SKILL.md", data=data, version="1.0.0", actor="t")
-        await self.service.promote(name, "1.0.0", Status.BETA, "t")
-        if to is Status.STABLE:
-            await self.service.promote(name, "1.0.0", Status.STABLE, "t")
-        return data
-
-
-@pytest_asyncio.fixture
-async def hub(clean_db: None) -> AsyncIterator[Hub]:
-    settings = Settings(
-        database_url=os.environ["TEST_DATABASE_URL"],
-        migration_database_url=os.environ["TEST_MIGRATION_DATABASE_URL"],
-        blob_backend="postgres",
-        max_file_bytes=1024 * 1024,
-        max_bundle_bytes=5 * 1024 * 1024,
-        max_files=100,
-    )
-    app = create_app(settings)
-    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=0, log_level="warning"))
-    task = asyncio.create_task(server.serve())
-    while not server.started:  # noqa: ASYNC110 - uvicorn não expõe um Event de partida
-        await asyncio.sleep(0.01)
-    port = server.servers[0].sockets[0].getsockname()[1]
-    yield Hub(f"http://127.0.0.1:{port}/mcp", app.state.service)
-    server.should_exit = True
-    await task
-
-
-async def call(client: Client, method: str, params: Any) -> dict[str, Any]:
-    result = await client.session.send_request(
-        types.Request(method=method, params=params), AnyResult
-    )
-    return result.model_dump()
+from tests.mcp_support import Hub, call, skill_md
 
 
 async def test_capabilities_advertise_skills_extension(hub: Hub) -> None:

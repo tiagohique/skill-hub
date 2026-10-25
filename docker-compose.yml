@@ -61,6 +61,7 @@ services:
     volumes:
       - ./hub:/app
       - ./scripts:/scripts
+      - ./examples:/examples:ro
     depends_on:
       postgres:
         condition: service_healthy
