@@ -25,7 +25,7 @@ Status: `pendente` · `em andamento` · `concluída`. Atualize no mesmo commit d
 | 18 | [arq.c4 e definição de pronto](18-architecture-and-dod.md) | 6 | todas | concluída |
 | 19 | [Upload: feedback claro para versão inválida](19-upload-version-feedback.md) | correção | 15 | concluída |
 | 20 | [Portal: fundação Tailwind, layout e badges](20-portal-foundation.md) | facelift | 19 | concluída |
-| 21 | [Portal: lista com busca e filtro](21-portal-skills-list.md) | facelift | 20 | pendente |
+| 21 | [Portal: lista com busca e filtro](21-portal-skills-list.md) | facelift | 20 | concluída |
 | 22 | [Portal: upload redesenhado](22-portal-upload.md) | facelift | 20, 19 | pendente |
 | 23 | [Portal: detalhe e verificação no celular](23-portal-detail-mobile.md) | facelift | 20, 21 | pendente |
 | 24 | [CLAUDE.md e arq.c4](24-docs-claude-md-arq-c4.md) | facelift | 20 a 23 | pendente |

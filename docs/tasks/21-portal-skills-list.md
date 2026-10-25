@@ -24,8 +24,8 @@ docker compose run --rm --no-deps portal npm run build
 ```
 
 ## Critérios de aceite
-- [ ] Testes falham antes e passam depois
-- [ ] Tabela e cards fiéis ao protótipo; busca e filtro funcionam
+- [x] Testes falham antes e passam depois
+- [x] Tabela e cards fiéis ao protótipo; busca e filtro funcionam
 
 ## Notas de execução
-—
+Teste vermelho primeiro (`Cannot find module src/skills.ts`), depois verde: 13 testes do portal no total. Verificado no navegador com dados reais: busca "API" → `fastapi-endpoint`; filtro Geral → 2 skills; "zzz" → "Nenhuma skill encontrada."; em 375 px a tabela some, aparecem os cards, não há rolagem horizontal, o menu hambúrguer tem itens de 48 px e fecha com Esc. Ajuste de escolha minha: o select de domínio ficou com `sm:w-56` (o `w-48` do protótipo cortava "Todos os domínios"). Linha da tabela e card inteiro levam ao detalhe.
